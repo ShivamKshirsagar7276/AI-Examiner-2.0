@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+python-dotenv
+passlib[bcrypt]
+python-jose
+email-validator
+python-multipart
+pdfplumber
+azure-ai-formrecognizer
+azure-core
+opencv-python
+numpy
+pdf2image
+Pillow

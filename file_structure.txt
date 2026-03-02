@@ -1,0 +1,33 @@
+backend/
+│
+├── main.py
+├── config.py
+│
+├── core/
+│   ├── database.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── security.py
+│   └── dependencies.py
+│
+├── routers/
+│   ├── auth_router.py
+│   ├── exam_router.py
+│   ├── submission_router.py
+│   └── result_router.py
+│
+├── services/
+│   ├── azure_ocr_service.py
+│   ├── azure_llm_service.py
+│   ├── answer_block_service.py
+│   ├── question_parser_service.py
+│   ├── diagram_service.py
+│   ├── evaluation_service.py
+│   └── result_service.py
+│
+├── repositories/
+│   ├── user_repository.py
+│   ├── exam_repository.py
+│   └── submission_repository.py
+│
+└── requirements.txt

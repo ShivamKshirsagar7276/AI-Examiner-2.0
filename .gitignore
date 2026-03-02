@@ -1,0 +1,17 @@
+# Environment
+.env
+.env.*
+
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+build/
+dist/
+
+# Backend runtime files
+backend/generated_marksheets/
+backend/storage/

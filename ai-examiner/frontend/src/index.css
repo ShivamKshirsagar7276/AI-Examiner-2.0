@@ -1,0 +1,18 @@
+/* Reset for Desktop App */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  background: #F4EDE6; /* temporary until theme loads */
+  overflow: hidden; /* desktop feel */
+}

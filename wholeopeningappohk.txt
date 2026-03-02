@@ -1,0 +1,17 @@
+backend opening ----
+
+cd backend 
+venv\Scripts\activate   
+uvicorn main:app --reload  
+
+-----------------------------------------------------------
+
+app opening--------
+
+cd ai-examiner 
+npm start
+npm run dev
+
+website opening------------
+cd 
+npm run dev
