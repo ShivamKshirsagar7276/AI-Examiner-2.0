@@ -19,7 +19,7 @@ The system automatically evaluates answers and generates:
 
 ### 🌐 Frontend
 - React.js  
-- Tailwind CSS  
+- Custom CSS  
 - Framer Motion  
 - Recharts  
 
