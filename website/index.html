@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRADY — Smart AI Examiner</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+scroll-behavior:smooth;
+}
+
+body{
+background:#f9f6f2;
+color:#3e2f2b;
+}
+
+/* NAVBAR */
+nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 8%;
+background:white;
+box-shadow:0 4px 20px rgba(0,0,0,0.05);
+position:sticky;
+top:0;
+z-index:100;
+}
+
+.nav-left{
+display:flex;
+align-items:center;
+gap:12px;
+}
+
+.logo-img{
+width:42px;
+}
+
+.logo-text{
+font-size:20px;
+font-weight:700;
+letter-spacing:1px;
+}
+
+nav a{
+text-decoration:none;
+color:#5a3e36;
+margin-left:28px;
+font-weight:600;
+font-size:14px;
+transition:0.3s;
+}
+
+nav a:hover{
+color:#000;
+}
+
+.portal-btn{
+background:#5a3e36;
+color:white !important;
+padding:8px 18px;
+border-radius:20px;
+}
+
+/* HERO */
+.hero{
+position:relative;
+padding:160px 8%;
+background:linear-gradient(135deg,#5a3e36,#8b6a5d);
+color:white;
+overflow:hidden;
+}
+
+.hero-container{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:80px;
+}
+
+.hero-left{
+max-width:650px;
+}
+
+.hero-left h1{
+font-size:58px;
+line-height:1.1;
+margin-bottom:24px;
+}
+
+.hero-left p{
+font-size:18px;
+line-height:1.8;
+opacity:0.95;
+margin-bottom:40px;
+}
+
+.button-group{
+display:flex;
+gap:20px;
+}
+
+.btn{
+padding:14px 34px;
+border:none;
+border-radius:40px;
+background:white;
+color:#5a3e36;
+font-weight:600;
+cursor:pointer;
+transition:0.3s ease;
+box-shadow:0 15px 35px rgba(0,0,0,0.2);
+}
+
+.btn:hover{
+transform:translateY(-5px);
+box-shadow:0 20px 45px rgba(0,0,0,0.3);
+}
+
+.hero-right{
+flex:1;
+text-align:right;
+}
+
+.hero-img{
+width:420px;
+filter:drop-shadow(0 40px 60px rgba(0,0,0,0.4));
+animation:float 4s ease-in-out infinite;
+}
+
+@keyframes float{
+0%{transform:translateY(0px);}
+50%{transform:translateY(-15px);}
+100%{transform:translateY(0px);}
+}
+
+/* SECTION */
+.section{
+padding:140px 8%;
+text-align:center;
+background:white;
+}
+
+.section h2{
+font-size:42px;
+margin-bottom:20px;
+}
+
+.subtitle{
+max-width:800px;
+margin:auto;
+margin-bottom:70px;
+color:#6b5a50;
+line-height:1.8;
+}
+
+/* GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:50px;
+}
+
+.card{
+background:white;
+padding:45px;
+border-radius:24px;
+box-shadow:0 25px 60px rgba(0,0,0,0.08);
+transition:0.4s ease;
+border:1px solid rgba(0,0,0,0.04);
+text-align:left;
+}
+
+.card:hover{
+transform:translateY(-14px);
+box-shadow:0 35px 80px rgba(0,0,0,0.15);
+}
+
+/* CTA SECTION */
+.cta{
+background:#f4efe9;
+padding:120px 8%;
+text-align:center;
+}
+
+.cta button{
+background:#5a3e36;
+color:white;
+}
+
+/* FOOTER */
+.footer{
+background:#3e2f2b;
+color:#d9d2cc;
+padding:100px 8%;
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:50px;
+}
+
+.footer h4{
+margin-bottom:20px;
+}
+
+.footer p,
+.footer a{
+color:#d9d2cc;
+text-decoration:none;
+font-size:14px;
+line-height:1.8;
+transition:0.3s ease;
+}
+
+.footer a:hover{
+color:white;
+padding-left:6px;
+}
+
+.footer-bottom{
+background:#2f2421;
+color:#d9d2cc;
+text-align:center;
+padding:25px;
+font-size:14px;
+}
+
+@media(max-width:900px){
+.hero-container{
+flex-direction:column;
+text-align:center;
+}
+
+.hero-right{
+text-align:center;
+margin-top:40px;
+}
+
+.hero-img{
+width:300px;
+}
+
+.hero-left h1{
+font-size:40px;
+}
+
+.button-group{
+flex-direction:column;
+}
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+<div class="nav-left">
+<img src="logo.png" class="logo-img">
+<div class="logo-text">GRADY</div>
+</div>
+<div>
+<a href="index.html">Home</a>
+<a href="#features">Features</a>
+<a href="result.html">Results</a>
+<a href="faculty.html" class="portal-btn">Faculty Portal</a>
+</div>
+</nav>
+
+<section class="hero">
+<div class="hero-container">
+
+<div class="hero-left">
+<h1>Structured AI Evaluation For Descriptive Examinations</h1>
+<p>AI-powered semantic grading combined with deterministic academic rule enforcement — built for structured institutional systems.</p>
+
+<div class="button-group">
+<button class="btn" onclick="window.location.href='result.html'">Check Result</button>
+<button class="btn" onclick="window.location.href='faculty.html'">Faculty Login</button>
+</div>
+</div>
+
+<div class="hero-right">
+<img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="hero-img">
+</div>
+
+</div>
+</section>
+
+<section class="section" id="features">
+<h2>Built For Institutional Precision</h2>
+<p class="subtitle">Designed to replicate faculty reasoning while enforcing structured university marking logic.</p>
+
+<div class="grid">
+<div class="card"><h4>Rule Extraction</h4><p>Automatically detects attempt rules and marking structure.</p></div>
+<div class="card"><h4>Semantic Scoring</h4><p>Context-aware evaluation for descriptive responses.</p></div>
+<div class="card"><h4>Deterministic Engine</h4><p>Applies academic marking logic after AI reasoning.</p></div>
+<div class="card"><h4>Explainable Output</h4><p>Transparent scoring breakdown with evaluation metrics.</p></div>
+</div>
+</section>
+
+<section class="cta">
+<h2>Ready to Modernize Your Evaluation Process?</h2>
+<p class="subtitle">Experience structured, transparent, AI-powered examination workflows.</p>
+<button class="btn" onclick="window.location.href='faculty.html'">Access Faculty Portal</button>
+</section>
+
+<section class="footer">
+<div>
+<h4>GRADY</h4>
+<p>AI-powered descriptive exam evaluation platform built for structured academic institutions.</p>
+</div>
+<div>
+<h4>Platform</h4>
+<p><a href="index.html">Home</a></p>
+<p><a href="#features">Features</a></p>
+<p><a href="result.html">Results</a></p>
+<p><a href="faculty.html">Faculty Portal</a></p>
+</div>
+<div>
+<h4>Contact</h4>
+<p>support@gradyai.com</p>
+</div>
+</section>
+
+<div class="footer-bottom">
+© 2026 GRADY — Smart AI Examiner. All Rights Reserved.
+</div>
+
+</body>
+</html>

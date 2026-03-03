@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>GRADY — Faculty Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{
+background:#f4efe9;
+color:#3e2f2b;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 8%;
+background:white;
+box-shadow:0 4px 20px rgba(0,0,0,0.05);
+}
+
+header h2{font-size:20px;}
+
+.container{
+max-width:500px;
+margin:100px auto;
+background:white;
+padding:40px;
+border-radius:20px;
+box-shadow:0 20px 60px rgba(0,0,0,0.1);
+}
+
+input{
+width:100%;
+padding:14px;
+margin-bottom:15px;
+border-radius:10px;
+border:1px solid #ddd;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:30px;
+background:#5a3e36;
+color:white;
+font-weight:600;
+cursor:pointer;
+margin-top:10px;
+}
+
+button:hover{opacity:0.9;}
+
+.error{
+color:red;
+margin-top:10px;
+display:none;
+text-align:center;
+}
+
+.dashboard{
+display:none;
+max-width:1000px;
+margin:60px auto;
+padding:40px;
+}
+
+.exam-card{
+background:white;
+padding:20px;
+margin-bottom:20px;
+border-radius:15px;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.exam-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.status{
+font-weight:600;
+}
+
+.actions{
+margin-top:15px;
+display:flex;
+gap:10px;
+}
+
+.small-btn{
+padding:8px 18px;
+border:none;
+border-radius:20px;
+background:#8b6a5d;
+color:white;
+cursor:pointer;
+width:auto;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>GRADY — Faculty Dashboard</h2>
+<button onclick="logout()">Logout</button>
+</header>
+
+<!-- LOGIN -->
+<div class="container" id="loginBox">
+<h3 style="text-align:center;margin-bottom:25px;">Faculty Login</h3>
+
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+<div class="error" id="error"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+<h3 style="margin-bottom:30px;">Exams</h3>
+<div id="examList"></div>
+</div>
+
+<script>
+
+const BASE_URL = "http://127.0.0.1:8000";
+let token = localStorage.getItem("faculty_token") || "";
+
+/* AUTO LOGIN IF TOKEN EXISTS */
+if(token){
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+    loadExams();
+}
+
+/* LOGIN */
+async function login(){
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const error = document.getElementById("error");
+
+    error.style.display="none";
+
+    try{
+
+        const res = await fetch(`${BASE_URL}/auth/login`,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        if(!res.ok){
+            const err = await res.json();
+            throw new Error(err.detail);
+        }
+
+        const data = await res.json();
+        token = data.access_token;
+        localStorage.setItem("faculty_token", token);
+
+        document.getElementById("loginBox").style.display="none";
+        document.getElementById("dashboard").style.display="block";
+
+        loadExams();
+
+    }catch(err){
+        error.textContent = err.message;
+        error.style.display="block";
+    }
+}
+
+/* LOAD EXAMS */
+async function loadExams(){
+
+    const res = await fetch(`${BASE_URL}/exams/`,{
+        headers:{
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    const exams = await res.json();
+    const list = document.getElementById("examList");
+    list.innerHTML = "";
+
+    exams.forEach(exam=>{
+
+        list.innerHTML += `
+            <div class="exam-card">
+                <div class="exam-header">
+                    <div>
+                        <strong>${exam.title}</strong><br>
+                        Class: ${exam.class_name} | Subject: ${exam.subject}
+                    </div>
+                    <div class="status">
+                        Status: ${exam.result_status}
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="small-btn" onclick="publish(${exam.id})">
+                        Publish
+                    </button>
+
+                    <button class="small-btn" onclick="lockResult(${exam.id})">
+                        Lock
+                    </button>
+
+                    <button class="small-btn" onclick="viewSubmissions(${exam.id})">
+                        Submissions
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+/* PUBLISH */
+async function publish(id){
+
+    await fetch(`${BASE_URL}/exams/${id}/publish-result`,{
+        method:"PUT",
+        headers:{
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    loadExams();
+}
+
+/* LOCK */
+async function lockResult(id){
+
+    await fetch(`${BASE_URL}/exams/${id}/lock-result`,{
+        method:"PUT",
+        headers:{
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    loadExams();
+}
+
+/* VIEW SUBMISSIONS */
+async function viewSubmissions(id){
+
+    const res = await fetch(`${BASE_URL}/exams/${id}/submissions`,{
+        headers:{
+            "Authorization": `Bearer ${token}`
+        }
+    });
+
+    const submissions = await res.json();
+
+    alert(
+        submissions.map(s =>
+            `Roll: ${s.roll_number} | Marks: ${s.total_marks} | Grade: ${s.grade}`
+        ).join("\n")
+    );
+}
+
+/* LOGOUT */
+function logout(){
+    localStorage.removeItem("faculty_token");
+    location.reload();
+}
+
+</script>
+
+</body>
+</html>

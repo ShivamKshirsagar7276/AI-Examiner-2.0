@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRADY — Student Result Portal</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{
+background:#f9f6f2;
+color:#3e2f2b;
+}
+
+/* HEADER */
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 8%;
+background:white;
+box-shadow:0 4px 20px rgba(0,0,0,0.05);
+}
+
+.logo{font-weight:700;font-size:20px;}
+.back{color:#5a3e36;text-decoration:none;font-weight:600;}
+
+/* MAIN */
+.container{
+padding:100px 8%;
+text-align:center;
+}
+
+.container h1{
+font-size:36px;
+margin-bottom:15px;
+}
+
+.subtitle{
+color:#6b5a50;
+margin-bottom:40px;
+}
+
+/* FORM */
+.form-box{
+background:white;
+padding:45px;
+border-radius:25px;
+box-shadow:0 25px 60px rgba(0,0,0,0.08);
+max-width:600px;
+margin:auto;
+}
+
+input{
+width:100%;
+padding:14px;
+margin-bottom:18px;
+border-radius:12px;
+border:1px solid #ddd;
+font-size:14px;
+}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:30px;
+background:#5a3e36;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:translateY(-3px);
+}
+
+/* LOADER */
+.loader{
+display:none;
+margin:20px auto;
+width:40px;
+height:40px;
+border:4px solid #ccc;
+border-top:4px solid #5a3e36;
+border-radius:50%;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+to{transform:rotate(360deg);}
+}
+
+/* ERROR */
+.error{
+color:#c0392b;
+margin-top:15px;
+display:none;
+font-weight:500;
+}
+
+/* RESULT CARD */
+.result-card{
+display:none;
+margin-top:50px;
+background:white;
+padding:45px;
+border-radius:30px;
+box-shadow:0 30px 80px rgba(0,0,0,0.15);
+max-width:900px;
+margin-left:auto;
+margin-right:auto;
+text-align:left;
+}
+
+.result-row{
+display:flex;
+justify-content:space-between;
+margin-bottom:15px;
+font-size:15px;
+}
+
+.grade{
+font-size:20px;
+font-weight:700;
+color:#5a3e36;
+margin-top:10px;
+}
+
+table{
+width:100%;
+margin-top:25px;
+border-collapse:collapse;
+}
+
+th, td{
+padding:10px;
+border-bottom:1px solid #eee;
+}
+
+th{
+background:#f4efe9;
+}
+
+.download-btn{
+margin-top:25px;
+background:#8b6a5d;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">GRADY</div>
+<a href="index.html" class="back">← Back to Home</a>
+</header>
+
+<div class="container">
+<h1>Student Result Portal</h1>
+<p class="subtitle">
+Enter your <strong>Exam ID</strong> and exact <strong>Roll Number</strong> to securely view your result.
+</p>
+
+<div class="form-box">
+
+<input type="number" id="examId" placeholder="Enter Exam ID (Example: 1, 2, 4...)">
+
+<input type="text" id="rollNumber" placeholder="Enter Exact Roll Number">
+
+<button onclick="getResult()">View Result</button>
+
+<div class="loader" id="loader"></div>
+<div class="error" id="error"></div>
+
+</div>
+
+<div class="result-card" id="resultCard">
+
+<div class="result-row"><strong>Exam:</strong><span id="examTitle"></span></div>
+<div class="result-row"><strong>Roll Number:</strong><span id="rollOut"></span></div>
+<div class="result-row"><strong>Total Marks:</strong><span id="marks"></span></div>
+<div class="result-row"><strong>Percentage:</strong><span id="percentage"></span></div>
+<div class="grade">Grade: <span id="grade"></span></div>
+
+<h3 style="margin-top:30px;">Question Wise Breakdown</h3>
+<table id="questionTable">
+<thead>
+<tr>
+<th>Question</th>
+<th>Obtained</th>
+<th>Max Marks</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<button class="download-btn" onclick="downloadMarksheet()">Download Official Marksheet</button>
+
+</div>
+</div>
+
+<script>
+
+const BASE_URL = "http://127.0.0.1:8000/public";
+
+async function getResult(){
+
+    const examId = document.getElementById("examId").value.trim();
+    const roll = document.getElementById("rollNumber").value.trim();
+
+    const loader = document.getElementById("loader");
+    const error = document.getElementById("error");
+    const card = document.getElementById("resultCard");
+
+    error.style.display="none";
+    card.style.display="none";
+
+    if(!examId || !roll){
+        error.textContent = "Please enter both Exam ID and Roll Number.";
+        error.style.display="block";
+        return;
+    }
+
+    loader.style.display="block";
+
+    try{
+        const res = await fetch(`${BASE_URL}/result/${examId}/${roll}`);
+
+        if(!res.ok){
+            const err = await res.json();
+            throw new Error(err.detail);
+        }
+
+        const data = await res.json();
+
+        document.getElementById("examTitle").textContent = data.exam_title;
+        document.getElementById("rollOut").textContent = data.roll_number;
+        document.getElementById("marks").textContent = `${data.total_marks} / ${data.max_marks}`;
+        document.getElementById("percentage").textContent = `${data.percentage}%`;
+        document.getElementById("grade").textContent = data.grade;
+
+        const tbody = document.querySelector("#questionTable tbody");
+        tbody.innerHTML = "";
+
+        for(const q in data.question_wise){
+            const details = data.question_wise[q];
+            if(details.ignored_due_to_best_of) continue;
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${q}</td>
+                    <td>${details.final_marks}</td>
+                    <td>${details.max_marks}</td>
+                </tr>
+            `;
+        }
+
+        loader.style.display="none";
+        card.style.display="block";
+
+    } catch(err){
+        loader.style.display="none";
+        error.textContent = err.message;
+        error.style.display="block";
+    }
+}
+
+function downloadMarksheet(){
+    const examId = document.getElementById("examId").value.trim();
+    const roll = document.getElementById("rollNumber").value.trim();
+    window.open(`${BASE_URL}/marksheet/${examId}/${roll}`);
+}
+
+</script>
+
+</body>
+</html>
