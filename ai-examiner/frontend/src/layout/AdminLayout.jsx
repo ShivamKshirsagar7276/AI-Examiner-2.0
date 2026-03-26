@@ -13,26 +13,24 @@ export default function AdminLayout() {
 
   const menuItems = [
     { name: "Dashboard", path: "/dashboard" },
-    { name: "Exams", path: "/exams" },
-    { name: "Results", path: "/results" }
+    { name: "Exams",     path: "/exams" },
+    { name: "Results",   path: "/results" },
+    { name: "Requests",  path: "/requests" }
   ];
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-      
-      {/* 🟤 Sidebar */}
-      <div
-        style={{
-          width: "240px",
-          background: `linear-gradient(180deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`,
-          color: "white",
-          padding: "30px 20px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between"
-        }}
-      >
-        {/* Logo */}
+
+      {/* SIDEBAR */}
+      <div style={{
+        width: "240px",
+        background: `linear-gradient(180deg, ${theme.colors.primary}, ${theme.colors.primaryDark})`,
+        color: "white",
+        padding: "30px 20px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between"
+      }}>
         <div>
           <h2 style={{ marginBottom: "40px" }}>AI Examiner</h2>
 
@@ -46,10 +44,9 @@ export default function AdminLayout() {
                 borderRadius: "10px",
                 marginBottom: "10px",
                 cursor: "pointer",
-                background:
-                  location.pathname === item.path
-                    ? "rgba(255,255,255,0.2)"
-                    : "transparent"
+                background: location.pathname === item.path
+                  ? "rgba(255,255,255,0.2)"
+                  : "transparent"
               }}
             >
               {item.name}
@@ -57,7 +54,6 @@ export default function AdminLayout() {
           ))}
         </div>
 
-        {/* Logout */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           onClick={handleLogout}
@@ -74,15 +70,13 @@ export default function AdminLayout() {
         </motion.button>
       </div>
 
-      {/* 📄 Main Content */}
-      <div
-        style={{
-          flex: 1,
-          background: theme.colors.background,
-          padding: "30px",
-          overflowY: "auto"
-        }}
-      >
+      {/* MAIN CONTENT */}
+      <div style={{
+        flex: 1,
+        background: theme.colors.background,
+        padding: "30px",
+        overflowY: "auto"
+      }}>
         <motion.div
           key={location.pathname}
           initial={{ opacity: 0, y: 15 }}
