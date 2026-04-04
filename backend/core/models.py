@@ -127,5 +127,11 @@ class StudentRevaluationRequest(Base):
     requested_at   = Column(DateTime, default=datetime.utcnow)
     resolved_at    = Column(DateTime, nullable=True)
 
+    # ← NEW: stores marks before revaluation for comparison
+    old_marks      = Column(Float, nullable=True)
+    old_percentage = Column(Float, nullable=True)
+    old_grade      = Column(String, nullable=True)
+    old_eval_json  = Column(JSON, nullable=True)
+
     student    = relationship("Student", back_populates="student_revaluation_requests")
     submission = relationship("StudentSubmission")

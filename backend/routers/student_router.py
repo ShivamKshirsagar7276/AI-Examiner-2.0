@@ -60,6 +60,9 @@ def student_login(data: StudentLogin, db: Session = Depends(get_db)):
     }
 
 
+# ============================================================
+# STUDENT DASHBOARD — includes question_wise for comparison
+# ============================================================
 @router.get("/dashboard")
 def student_dashboard(
     db: Session = Depends(get_db),
@@ -74,6 +77,14 @@ def student_dashboard(
 
     results = []
     for s in submissions:
+        question_wise = {}
+        if s.evaluation_json:
+            for qid, data in s.evaluation_json.items():
+                question_wise[qid] = {
+                    "final_marks": data.get("final_marks", 0),
+                    "max_marks":   data.get("max_marks", 0)
+                }
+
         results.append({
             "submission_id": s.id,
             "exam_id":       s.exam_id,
@@ -83,7 +94,8 @@ def student_dashboard(
             "max_marks":     s.max_marks,
             "percentage":    s.percentage,
             "grade":         s.grade,
-            "evaluated_at":  s.evaluated_at
+            "evaluated_at":  s.evaluated_at,
+            "question_wise": question_wise
         })
 
     return {
@@ -191,7 +203,11 @@ def my_requests(
             "status":         r.status,
             "faculty_remark": r.faculty_remark,
             "requested_at":   r.requested_at,
-            "resolved_at":    r.resolved_at
+            "resolved_at":    r.resolved_at,
+            "old_marks":      r.old_marks,
+            "old_percentage": r.old_percentage,
+            "old_grade":      r.old_grade,
+            "old_eval_json":  r.old_eval_json
         }
         for r in requests
     ]
@@ -241,6 +257,18 @@ def approve_request(
         ).first()
 
         if submission:
+            request.old_marks      = submission.total_marks
+            request.old_percentage = submission.percentage
+            request.old_grade      = submission.grade
+            request.old_eval_json  = {
+                qid: {
+                    "final_marks": data.get("final_marks", 0),
+                    "max_marks":   data.get("max_marks", 0)
+                }
+                for qid, data in (submission.evaluation_json or {}).items()
+            }
+            db.commit()
+
             from routers.exam_router import run_evaluation
             run_evaluation(exam=submission.exam, submission=submission, db=db)
 
@@ -268,6 +296,9 @@ def reject_request(
     return {"message": "Request rejected", "request_id": request_id}
 
 
+# ============================================================
+# STUDENT — DOWNLOAD PHOTOCOPY PDF — direct single click
+# ============================================================
 @router.get("/photocopy/{submission_id}")
 def download_photocopy(
     submission_id: int,
@@ -299,5 +330,7 @@ def download_photocopy(
     return StreamingResponse(
         pdf_buffer,
         media_type="application/pdf",
-        headers={"Content-Disposition": f"attachment; filename=photocopy_{submission.roll_number}.pdf"}
+        headers={
+            "Content-Disposition": f"attachment; filename=photocopy_{submission.roll_number}.pdf"
+        }
     )
