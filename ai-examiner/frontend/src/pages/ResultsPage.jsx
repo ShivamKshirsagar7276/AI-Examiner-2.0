@@ -16,6 +16,7 @@ export default function ResultsPage() {
   const [reasoning, setReasoning]                   = useState(null);
   const [reasoningLoading, setReasoningLoading]     = useState(false);
   const [showReasoning, setShowReasoning]           = useState(false);
+  const [generatingMsg, setGeneratingMsg]           = useState("");
 
   useEffect(() => {
     const fetchExams = async () => {
@@ -45,13 +46,25 @@ export default function ResultsPage() {
     if (!selectedSubmission) return;
     setReasoningLoading(true);
     setShowReasoning(true);
+    setGeneratingMsg("Generating AI reasoning for each question... this may take a moment.");
+
     try {
-      const res = await API.get(`/results/faculty/${selectedSubmission.submission_id}/reasoning`);
+      await API.post(
+        `/exams/${selectedExam.id}/submission/${selectedSubmission.submission_id}/generate-reasoning`
+      );
+
+      setGeneratingMsg("Fetching results...");
+
+      const res = await API.get(
+        `/results/faculty/${selectedSubmission.submission_id}/reasoning`
+      );
       setReasoning(res.data);
     } catch (err) {
-      alert("Failed to load AI reasoning. Please re-evaluate the submission first.");
+      alert("Failed to generate AI reasoning. Please try again.");
+      setShowReasoning(false);
     } finally {
       setReasoningLoading(false);
+      setGeneratingMsg("");
     }
   };
 
@@ -111,7 +124,7 @@ export default function ResultsPage() {
     <div style={wrapper}>
       <h2 style={title}>Results</h2>
 
-      {/* ================= EXAM LIST ================= */}
+      {/* EXAM LIST */}
       <div style={examGrid}>
         {exams.map((exam) => (
           <motion.div
@@ -130,7 +143,7 @@ export default function ResultsPage() {
         ))}
       </div>
 
-      {/* ================= PUBLISH / LOCK ================= */}
+      {/* PUBLISH / LOCK */}
       {selectedExam && (
         <div style={{ marginBottom: "20px" }}>
           {selectedExam.result_status === "draft" && (
@@ -145,7 +158,7 @@ export default function ResultsPage() {
         </div>
       )}
 
-      {/* ================= ANALYTICS ================= */}
+      {/* ANALYTICS */}
       {selectedExam && analytics && (
         <>
           <div style={statsGrid}>
@@ -191,7 +204,7 @@ export default function ResultsPage() {
             style={searchInput}
           />
 
-          {/* ================= TABLE ================= */}
+          {/* TABLE */}
           <div style={tableCard}>
             <table style={tableStyle}>
               <thead style={theadStyle}>
@@ -223,7 +236,7 @@ export default function ResultsPage() {
         </>
       )}
 
-      {/* ================= MARKSHEET ================= */}
+      {/* MARKSHEET */}
       {selectedSubmission && (
         <div style={marksheetWrapper}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
@@ -269,7 +282,7 @@ export default function ResultsPage() {
         </div>
       )}
 
-      {/* ================= AI REASONING PANEL ================= */}
+      {/* AI REASONING PANEL */}
       {showReasoning && (
         <div style={reasoningWrapper}>
 
@@ -287,7 +300,12 @@ export default function ResultsPage() {
                 transition={{ repeat: Infinity, duration: 1 }}
                 style={{ ...spinner, margin: "0 auto 12px" }}
               />
-              <div>Generating AI reasoning...</div>
+              <div style={{ marginBottom: "8px", fontWeight: "600" }}>
+                Generating AI reasoning...
+              </div>
+              <div style={{ fontSize: "13px", color: "#aaa" }}>
+                {generatingMsg}
+              </div>
             </div>
           ) : reasoning ? (
             <>
@@ -315,7 +333,6 @@ export default function ResultsPage() {
               {reasoning.questions.map((q) => (
                 <div key={q.question_id} style={questionReasoningCard}>
 
-                  {/* Header */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                     <h4 style={{ margin: 0, color: theme.colors.primary, fontSize: "16px" }}>
                       {q.question_id}
@@ -391,7 +408,7 @@ export default function ResultsPage() {
                     </div>
                   ) : (
                     <div style={noReasoningBox}>
-                      ⚠ Detailed reasoning not available. Re-evaluate this submission to generate AI reasoning.
+                      ⚠ Reasoning could not be generated for this question.
                     </div>
                   )}
 
@@ -405,13 +422,8 @@ export default function ResultsPage() {
                         {q.overall_feedback}
                       </div>
                     </div>
-                  ) : (
-                    <div style={{ fontSize: "12px", color: "#aaa", fontStyle: "italic", marginTop: "8px" }}>
-                      No examiner feedback available. Re-evaluate to generate.
-                    </div>
-                  )}
+                  ) : null}
 
-                  {/* Ignored Badge */}
                   {q.ignored_due_to_best_of && (
                     <div style={ignoredBadge}>
                       ⚠ This question was not counted (best-of selection applied)
@@ -456,29 +468,24 @@ const th           = { padding: "12px", textAlign: "center" };
 const td           = { padding: "12px", textAlign: "center" };
 const publishBtn   = { padding: "8px 16px", borderRadius: "8px", border: "none", background: theme.colors.primary, color: "white", cursor: "pointer" };
 const lockBtn      = { padding: "8px 16px", borderRadius: "8px", border: "none", background: "#dc2626", color: "white", cursor: "pointer" };
-
 const marksheetWrapper  = { background: "white", padding: "20px", borderRadius: "12px", boxShadow: theme.shadow.soft, marginBottom: "20px" };
 const marksheetMeta     = { display: "flex", gap: "24px", fontSize: "14px", color: "#555", marginBottom: "16px" };
 const questionGrid      = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "15px" };
 const questionCard      = { background: "#f9f9f9", padding: "15px", borderRadius: "8px" };
 const progressContainer = { height: "6px", background: "#ddd", borderRadius: "4px", marginTop: "8px" };
 const progressBar       = { height: "100%", borderRadius: "4px" };
-
 const reasoningBtn  = { padding: "8px 18px", borderRadius: "8px", border: "none", background: theme.colors.primary, color: "white", cursor: "pointer", fontSize: "13px", fontWeight: "600" };
 const closeBtn      = { padding: "6px 14px", borderRadius: "8px", border: "1px solid #ddd", background: "white", cursor: "pointer", fontSize: "13px" };
 const reasoningWrapper = { background: "white", padding: "24px", borderRadius: "14px", boxShadow: theme.shadow.soft, marginBottom: "20px" };
-
 const reasoningSummary = { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "24px", background: "#f8f9fa", padding: "16px", borderRadius: "10px" };
 const summaryItem      = { display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" };
 const summaryLabel     = { fontSize: "11px", color: "#888", fontWeight: "500" };
 const summaryValue     = { fontSize: "20px", fontWeight: "700", color: "#333" };
-
 const questionReasoningCard = { border: "1px solid #eee", borderRadius: "12px", padding: "16px", marginBottom: "16px" };
 const scoreBarsGrid         = { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "10px", marginBottom: "14px", background: "#f8f9fa", padding: "12px", borderRadius: "8px" };
 const scoreBarItem          = { display: "flex", flexDirection: "column" };
 const miniTrack             = { height: "6px", background: "#e5e7eb", borderRadius: "99px", overflow: "hidden" };
 const miniFill              = { height: "100%", borderRadius: "99px" };
-
 const componentRow   = { display: "flex", gap: "10px", alignItems: "flex-start", padding: "8px 10px", background: "#fafafa", borderRadius: "8px" };
 const noReasoningBox = { background: "#fff9e6", border: "1px solid #fde68a", borderRadius: "8px", padding: "12px", fontSize: "12px", color: "#92400e", marginBottom: "12px" };
 const feedbackBox    = { background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "8px", padding: "12px" };

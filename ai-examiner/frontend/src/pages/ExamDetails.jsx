@@ -19,9 +19,8 @@ export default function ExamDetails() {
     "submit-answer-sheet": { loading: false, fileName: "", success: false }
   });
 
-  // ── Bulk upload state ──────────────────────────────────────
   const [bulkState, setBulkState] = useState({
-    phase:      "idle",      // idle | uploading | processing | done | failed
+    phase:      "idle",
     isDragging: false,
     jobId:      null,
     total:      0,
@@ -32,7 +31,7 @@ export default function ExamDetails() {
     results:    []
   });
 
-  const pollRef     = useRef(null);   // holds setInterval id
+  const pollRef     = useRef(null);
   const fileRefs    = {
     "question-paper":      useRef(null),
     "model-answer":        useRef(null),
@@ -40,8 +39,6 @@ export default function ExamDetails() {
   };
   const bulkFileRef   = useRef(null);
   const bulkFolderRef = useRef(null);
-
-  /* ================= FETCH ================= */
 
   const fetchExam = async () => {
     const res = await API.get(`/exams/${examId}`);
@@ -61,11 +58,8 @@ export default function ExamDetails() {
 
   useEffect(() => {
     fetchAll();
-    // cleanup polling on unmount
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [examId]);
-
-  /* ================= RESULT ACTIONS ================= */
 
   const handlePublish = async () => {
     try {
@@ -91,38 +85,29 @@ export default function ExamDetails() {
     }
   };
 
-  /* ================= SINGLE UPLOAD ================= */
-
   const handleUpload = async (type, file) => {
     if (!file) return;
-
     setUploadState(prev => ({
       ...prev,
       [type]: { loading: true, fileName: file.name, success: false }
     }));
-
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       const uploadRes = await API.post(
         `/exams/${examId}/${type}`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
       if (type === "submit-answer-sheet") {
         const submissionId = uploadRes.data.submission_id;
         await API.post(`/exams/${examId}/evaluate/${submissionId}`);
       }
-
       setUploadState(prev => ({
         ...prev,
         [type]: { loading: false, fileName: file.name, success: true }
       }));
-
       fetchSubmissions();
-
     } catch (err) {
       setUploadState(prev => ({
         ...prev,
@@ -132,23 +117,16 @@ export default function ExamDetails() {
     }
   };
 
-  /* ================= BULK UPLOAD ================= */
-
   const stopPolling = () => {
-    if (pollRef.current) {
-      clearInterval(pollRef.current);
-      pollRef.current = null;
-    }
+    if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
   };
 
   const startPolling = (jobId) => {
     stopPolling();
-
     pollRef.current = setInterval(async () => {
       try {
         const res = await API.get(`/exams/${examId}/bulk-job/${jobId}`);
         const d   = res.data;
-
         setBulkState(prev => ({
           ...prev,
           processed: d.processed,
@@ -158,72 +136,48 @@ export default function ExamDetails() {
           results:   d.results,
           phase:     d.status === "done" || d.status === "failed" ? d.status : "processing"
         }));
-
-        // stop polling when job is finished
         if (d.status === "done" || d.status === "failed") {
           stopPolling();
           fetchSubmissions();
         }
-
-      } catch (err) {
+      } catch {
         stopPolling();
         setBulkState(prev => ({ ...prev, phase: "failed" }));
       }
-    }, 3000);  // poll every 3 seconds
+    }, 3000);
   };
 
   const handleBulkUpload = async (files) => {
     const pdfs = Array.from(files).filter(
       f => f.type === "application/pdf" || f.name.endsWith(".pdf")
     );
-
     if (pdfs.length === 0) {
       setError("No PDF files found. Please upload PDF files only.");
       return;
     }
-
     setError("");
     setBulkState({
-      phase:      "uploading",
-      isDragging: false,
-      jobId:      null,
-      total:      pdfs.length,
-      processed:  0,
-      succeeded:  0,
-      failed:     0,
-      percent:    0,
-      results:    []
+      phase: "uploading", isDragging: false, jobId: null,
+      total: pdfs.length, processed: 0, succeeded: 0,
+      failed: 0, percent: 0, results: []
     });
-
     const formData = new FormData();
     pdfs.forEach(f => formData.append("files", f));
-
     try {
-      // This returns immediately with job_id
       const res   = await API.post(
         `/exams/${examId}/bulk-submit-sheets`,
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
       const jobId = res.data.job_id;
-
-      setBulkState(prev => ({
-        ...prev,
-        phase: "processing",
-        jobId
-      }));
-
-      // Start polling progress every 3 seconds
+      setBulkState(prev => ({ ...prev, phase: "processing", jobId }));
       startPolling(jobId);
-
     } catch (err) {
       setBulkState(prev => ({ ...prev, phase: "failed" }));
       setError(err.response?.data?.detail || "Bulk upload failed.");
     }
   };
 
-  // Drag and drop handlers
   const handleDragOver  = (e) => { e.preventDefault(); setBulkState(p => ({ ...p, isDragging: true })); };
   const handleDragLeave = (e) => { e.preventDefault(); setBulkState(p => ({ ...p, isDragging: false })); };
   const handleDrop      = (e) => {
@@ -256,9 +210,7 @@ export default function ExamDetails() {
     <div style={pageWrapper}>
 
       {error && (
-        <p style={{ color: theme.colors.danger, marginBottom: "15px" }}>
-          {error}
-        </p>
+        <p style={{ color: theme.colors.danger, marginBottom: "15px" }}>{error}</p>
       )}
 
       {/* ================= HEADER ================= */}
@@ -267,15 +219,38 @@ export default function ExamDetails() {
         animate={{ opacity: 1, y: 0 }}
         style={headerCard}
       >
-        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-          <h2 style={titleStyle}>{exam.title}</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+
+          {/* Title + Exam ID badge */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <h2 style={titleStyle}>{exam.title}</h2>
+            <span style={examIdBadge}>Exam ID: #{exam.id}</span>
+          </div>
+
+          {/* Meta info row */}
           <div style={metaRow}>
-            <span>Class: {exam.class_name}</span>
-            <span>Division: {exam.division}</span>
-            <span>Subject: {exam.subject}</span>
-            <span>Total Marks: {exam.total_marks}</span>
+            <span style={metaItem}>
+              <span style={metaLabel}>Class</span>
+              {exam.class_name}
+            </span>
+            <span style={metaDivider}>|</span>
+            <span style={metaItem}>
+              <span style={metaLabel}>Division</span>
+              {exam.division}
+            </span>
+            <span style={metaDivider}>|</span>
+            <span style={metaItem}>
+              <span style={metaLabel}>Subject</span>
+              {exam.subject}
+            </span>
+            <span style={metaDivider}>|</span>
+            <span style={metaItem}>
+              <span style={metaLabel}>Total Marks</span>
+              {exam.total_marks}
+            </span>
           </div>
         </div>
+
         <span style={{ ...statusBadge, background: statusColors[exam.result_status] }}>
           {exam.result_status.toUpperCase()}
         </span>
@@ -363,7 +338,6 @@ export default function ExamDetails() {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {/* Title row */}
         <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
           <div style={uploadTitle}>📦 Bulk Answer Sheets</div>
           {(phase === "done" || phase === "failed") && (
@@ -371,14 +345,12 @@ export default function ExamDetails() {
           )}
         </div>
 
-        {/* ── IDLE ── */}
         {phase === "idle" && (
           <div style={{ textAlign: "center", color: "#888", fontSize: "13px" }}>
             Drag & drop PDFs here, or choose files below
           </div>
         )}
 
-        {/* ── UPLOADING (sending files to server) ── */}
         {phase === "uploading" && (
           <div style={centerCol}>
             <motion.div
@@ -392,17 +364,12 @@ export default function ExamDetails() {
           </div>
         )}
 
-        {/* ── PROCESSING (background job running) ── */}
         {phase === "processing" && (
           <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}>
-
-            {/* Progress numbers */}
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", color: "#444" }}>
               <span>Checking papers...</span>
               <span style={{ fontWeight: 600 }}>{processed} / {total} done</span>
             </div>
-
-            {/* Progress bar */}
             <div style={progressTrack}>
               <motion.div
                 style={{ ...progressFill, background: theme.colors.primary }}
@@ -411,8 +378,6 @@ export default function ExamDetails() {
                 transition={{ duration: 0.4 }}
               />
             </div>
-
-            {/* Percent + counts */}
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px" }}>
               <span style={{ color: theme.colors.primary, fontWeight: 600 }}>{percent}%</span>
               <span>
@@ -422,48 +387,34 @@ export default function ExamDetails() {
                 )}
               </span>
             </div>
-
-            {/* Live per-sheet results as they come in */}
             {results.length > 0 && (
               <div style={resultScroll}>
-                {results
-                  .filter(r => r.status === "done")
-                  .map((r, i) => (
-                    <div key={i} style={{
-                      ...resultRow,
-                      background: r.success ? "#f0fdf4" : "#fff1f2"
-                    }}>
-                      <span style={{ fontWeight: 600, fontSize: "12px" }}>
-                        {r.success ? "✅" : "❌"} {r.filename}
+                {results.filter(r => r.status === "done").map((r, i) => (
+                  <div key={i} style={{ ...resultRow, background: r.success ? "#f0fdf4" : "#fff1f2" }}>
+                    <span style={{ fontWeight: 600, fontSize: "12px" }}>
+                      {r.success ? "✅" : "❌"} {r.filename}
+                    </span>
+                    {r.success ? (
+                      <span style={{ fontSize: "11px", color: "#555" }}>
+                        Roll: {r.roll_number} &nbsp;|&nbsp;
+                        Marks: {r.total_marks}/{r.max_marks} &nbsp;|&nbsp;
+                        {r.percentage}% &nbsp;|&nbsp; Grade: {r.grade}
                       </span>
-                      {r.success ? (
-                        <span style={{ fontSize: "11px", color: "#555" }}>
-                          Roll: {r.roll_number} &nbsp;|&nbsp;
-                          Marks: {r.total_marks}/{r.max_marks} &nbsp;|&nbsp;
-                          {r.percentage}% &nbsp;|&nbsp; Grade: {r.grade}
-                        </span>
-                      ) : (
-                        <span style={{ fontSize: "11px", color: theme.colors.danger }}>
-                          {r.error}
-                        </span>
-                      )}
-                    </div>
-                  ))}
+                    ) : (
+                      <span style={{ fontSize: "11px", color: theme.colors.danger }}>{r.error}</span>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
         )}
 
-        {/* ── DONE ── */}
         {phase === "done" && (
           <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px" }}>
-
-            {/* Completed progress bar */}
             <div style={progressTrack}>
               <div style={{ ...progressFill, width: "100%", background: "#16a34a" }} />
             </div>
-
-            {/* Summary */}
             <div style={{ display: "flex", gap: "16px", fontSize: "13px", justifyContent: "center" }}>
               <span style={{ color: "#16a34a", fontWeight: 600 }}>✅ {succeeded} checked</span>
               {failed > 0 && (
@@ -471,14 +422,9 @@ export default function ExamDetails() {
               )}
               <span style={{ color: "#888" }}>out of {total} sheets</span>
             </div>
-
-            {/* Full results table */}
             <div style={resultScroll}>
               {results.map((r, i) => (
-                <div key={i} style={{
-                  ...resultRow,
-                  background: r.success ? "#f0fdf4" : "#fff1f2"
-                }}>
+                <div key={i} style={{ ...resultRow, background: r.success ? "#f0fdf4" : "#fff1f2" }}>
                   <span style={{ fontWeight: 600, fontSize: "12px" }}>
                     {r.success ? "✅" : "❌"} {r.filename}
                   </span>
@@ -489,9 +435,7 @@ export default function ExamDetails() {
                       {r.percentage}% &nbsp;|&nbsp; Grade: {r.grade}
                     </span>
                   ) : (
-                    <span style={{ fontSize: "11px", color: theme.colors.danger }}>
-                      {r.error}
-                    </span>
+                    <span style={{ fontSize: "11px", color: theme.colors.danger }}>{r.error}</span>
                   )}
                 </div>
               ))}
@@ -499,14 +443,12 @@ export default function ExamDetails() {
           </div>
         )}
 
-        {/* ── FAILED (unexpected crash) ── */}
         {phase === "failed" && (
           <div style={{ color: theme.colors.danger, fontSize: "13px", textAlign: "center" }}>
             Something went wrong. Please try again.
           </div>
         )}
 
-        {/* Buttons — only show when idle or done */}
         {!isProcessing && phase !== "done" && (
           <div style={{ display: "flex", gap: "10px", justifyContent: "center", flexWrap: "wrap" }}>
             <button onClick={() => bulkFileRef.current.click()} style={bulkBtn}>
@@ -518,47 +460,60 @@ export default function ExamDetails() {
           </div>
         )}
 
-        {/* Hidden inputs */}
-        <input
-          ref={bulkFileRef}
-          type="file"
-          hidden
-          multiple
-          accept=".pdf"
-          onChange={(e) => handleBulkUpload(e.target.files)}
-        />
-        <input
-          ref={bulkFolderRef}
-          type="file"
-          hidden
-          multiple
-          accept=".pdf"
-          webkitdirectory=""
-          onChange={(e) => handleBulkUpload(e.target.files)}
-        />
-
+        <input ref={bulkFileRef} type="file" hidden multiple accept=".pdf"
+          onChange={(e) => handleBulkUpload(e.target.files)} />
+        <input ref={bulkFolderRef} type="file" hidden multiple accept=".pdf"
+          webkitdirectory="" onChange={(e) => handleBulkUpload(e.target.files)} />
       </motion.div>
 
-      {/* ================= TABLE ================= */}
+      {/* ================= SUBMISSIONS TABLE ================= */}
       <div style={tableCard}>
         <table style={tableStyle}>
           <thead style={theadStyle}>
             <tr>
               <th style={th}>Roll No</th>
               <th style={th}>Obtained Marks</th>
+              <th style={th}>Max Marks</th>
               <th style={th}>Percentage</th>
               <th style={th}>Grade</th>
             </tr>
           </thead>
           <tbody>
-            {submissions.map((s) => (
-              <tr key={s.submission_id}>
-                <td style={td}>{s.roll_number}</td>
-                <td style={td}>{s.total_marks ?? "-"}</td>
-                <td style={td}>{s.percentage ?? "-"}</td>
-                <td style={td}>{s.grade ?? "-"}</td>
+            {submissions.length === 0 ? (
+              <tr>
+                <td colSpan={5} style={{ ...td, color: "#999", padding: "24px" }}>
+                  No submissions yet
+                </td>
               </tr>
-            ))}
+            ) : (
+              submissions.map((s) => (
+                <tr key={s.submission_id} style={{ borderBottom: "1px solid #f0f0f0" }}>
+                  <td style={td}>{s.roll_number}</td>
+                  <td style={td}>{s.total_marks ?? "-"}</td>
+                  <td style={td}>{s.max_marks ?? "-"}</td>
+                  <td style={td}>
+                    {s.percentage != null ? `${s.percentage}%` : "-"}
+                  </td>
+                  <td style={td}>
+                    {s.grade ? (
+                      <span style={{
+                        ...gradePill,
+                        background:
+                          s.grade === "Fail" ? "#fee2e2" :
+                          s.grade.includes("Distinction") ? "#dcfce7" :
+                          s.grade.includes("First") ? "#dbeafe" : "#fef9c3",
+                        color:
+                          s.grade === "Fail" ? "#dc2626" :
+                          s.grade.includes("Distinction") ? "#16a34a" :
+                          s.grade.includes("First") ? "#1d4ed8" : "#92400e",
+                      }}>
+                        {s.grade}
+                      </span>
+                    ) : "-"}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -569,11 +524,7 @@ export default function ExamDetails() {
 
 /* ================= STYLES ================= */
 
-const pageWrapper = {
-  maxWidth: "1100px",
-  margin: "0 auto",
-  padding: "10px 20px 30px 20px"
-};
+const pageWrapper = { maxWidth: "1100px", margin: "0 auto", padding: "10px 20px 30px 20px" };
 
 const headerCard = {
   background: "white",
@@ -583,146 +534,55 @@ const headerCard = {
   marginBottom: "15px",
   display: "flex",
   justifyContent: "space-between",
-  alignItems: "center"
+  alignItems: "center",
 };
 
-const titleStyle = {
-  color: theme.colors.primary,
-  fontSize: "22px",
-  fontWeight: "600",
-  margin: 0
-};
+const titleStyle = { color: theme.colors.primary, fontSize: "22px", fontWeight: "600", margin: 0 };
 
-const metaRow = {
-  display: "flex",
-  gap: "20px",
-  fontSize: "13px",
-  color: "#555"
-};
-
-const statusBadge = {
-  padding: "6px 14px",
+const examIdBadge = {
+  padding: "4px 12px",
   borderRadius: "20px",
-  color: "white",
+  background: "#eff6ff",
+  color: theme.colors.primary,
   fontSize: "12px",
-  fontWeight: "600"
+  fontWeight: "700",
+  border: `1px solid ${theme.colors.primary}22`,
 };
 
-const buttonRow = {
-  display: "flex",
-  gap: "12px",
-  marginBottom: "20px"
-};
+const metaRow    = { display: "flex", alignItems: "center", gap: "8px", fontSize: "13px", color: "#555", flexWrap: "wrap" };
+const metaItem   = { display: "flex", gap: "5px", alignItems: "center" };
+const metaLabel  = { fontWeight: "600", color: "#888", fontSize: "11px" };
+const metaDivider = { color: "#ddd" };
 
-const actionBtn = {
-  padding: "8px 16px",
-  borderRadius: "8px",
-  border: "none",
-  fontSize: "13px",
-  fontWeight: "500",
-  color: "white",
-  cursor: "pointer"
-};
+const statusBadge = { padding: "6px 14px", borderRadius: "20px", color: "white", fontSize: "12px", fontWeight: "600" };
+const buttonRow   = { display: "flex", gap: "12px", marginBottom: "20px" };
+const actionBtn   = { padding: "8px 16px", borderRadius: "8px", border: "none", fontSize: "13px", fontWeight: "500", color: "white", cursor: "pointer" };
 
-const uploadWrapper = {
-  display: "grid",
-  gridTemplateColumns: "repeat(3, 1fr)",
-  gap: "18px",
-  marginBottom: "18px"
-};
+const uploadWrapper = { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "18px", marginBottom: "18px" };
+const uploadCard    = { background: "white", padding: "15px", borderRadius: "14px", boxShadow: theme.shadow.soft, height: "170px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "center", cursor: "pointer" };
 
-const uploadCard = {
-  background: "white",
-  padding: "15px",
-  borderRadius: "14px",
-  boxShadow: theme.shadow.soft,
-  height: "170px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  alignItems: "center",
-  cursor: "pointer"
-};
+const bulkCard = { background: "white", padding: "20px", borderRadius: "14px", boxShadow: theme.shadow.soft, marginBottom: "25px", display: "flex", flexDirection: "column", gap: "14px", alignItems: "center", transition: "border 0.2s, background 0.2s" };
+const bulkBtn  = { padding: "8px 16px", borderRadius: "8px", border: "1px solid #ddd", fontSize: "13px", fontWeight: "500", background: "white", cursor: "pointer" };
+const resetBtn = { padding: "5px 12px", borderRadius: "8px", border: "1px solid #ddd", fontSize: "12px", background: "white", cursor: "pointer", color: "#555" };
 
-const bulkCard = {
-  background: "white",
-  padding: "20px",
-  borderRadius: "14px",
-  boxShadow: theme.shadow.soft,
-  marginBottom: "25px",
-  display: "flex",
-  flexDirection: "column",
-  gap: "14px",
-  alignItems: "center",
-  transition: "border 0.2s, background 0.2s"
-};
+const progressTrack = { width: "100%", height: "10px", background: "#f0f0f0", borderRadius: "99px", overflow: "hidden" };
+const progressFill  = { height: "100%", borderRadius: "99px" };
+const centerCol     = { display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" };
 
-const bulkBtn = {
-  padding: "8px 16px",
-  borderRadius: "8px",
-  border: "1px solid #ddd",
-  fontSize: "13px",
-  fontWeight: "500",
-  background: "white",
-  cursor: "pointer"
-};
+const resultScroll = { maxHeight: "180px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "6px", width: "100%" };
+const resultRow    = { display: "flex", flexDirection: "column", gap: "2px", padding: "8px 12px", borderRadius: "8px", fontSize: "12px" };
 
-const resetBtn = {
-  padding: "5px 12px",
-  borderRadius: "8px",
-  border: "1px solid #ddd",
-  fontSize: "12px",
-  background: "white",
-  cursor: "pointer",
-  color: "#555"
-};
-
-const progressTrack = {
-  width: "100%",
-  height: "10px",
-  background: "#f0f0f0",
-  borderRadius: "99px",
-  overflow: "hidden"
-};
-
-const progressFill = {
-  height: "100%",
-  borderRadius: "99px"
-};
-
-const centerCol = {
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: "10px"
-};
-
-const resultScroll = {
-  maxHeight: "180px",
-  overflowY: "auto",
-  display: "flex",
-  flexDirection: "column",
-  gap: "6px",
-  width: "100%"
-};
-
-const resultRow = {
-  display: "flex",
-  flexDirection: "column",
-  gap: "2px",
-  padding: "8px 12px",
-  borderRadius: "8px",
-  fontSize: "12px"
-};
-
-const uploadTitle  = { fontWeight: 600, fontSize: "14px" };
-const contentArea  = { height: "40px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" };
+const uploadTitle   = { fontWeight: 600, fontSize: "14px" };
+const contentArea   = { height: "40px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" };
 const fileNameStyle = { fontSize: "12px", maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };
-const spinner      = { width: "20px", height: "20px", border: "3px solid #eee", borderTop: `3px solid ${theme.colors.primary}`, borderRadius: "50%" };
-const successText  = { fontSize: "12px", color: "#16a34a", fontWeight: "600" };
-const dropText     = { fontSize: "11px", color: "#888" };
-const tableCard    = { background: "white", borderRadius: "14px", boxShadow: theme.shadow.soft, overflowX: "auto" };
-const tableStyle   = { width: "100%", borderCollapse: "collapse" };
-const theadStyle   = { background: theme.colors.primary, color: "white" };
-const th           = { padding: "12px", textAlign: "center" };
-const td           = { padding: "12px", textAlign: "center" };
+const spinner       = { width: "20px", height: "20px", border: "3px solid #eee", borderTop: `3px solid ${theme.colors.primary}`, borderRadius: "50%" };
+const successText   = { fontSize: "12px", color: "#16a34a", fontWeight: "600" };
+const dropText      = { fontSize: "11px", color: "#888" };
+
+const tableCard  = { background: "white", borderRadius: "14px", boxShadow: theme.shadow.soft, overflowX: "auto" };
+const tableStyle = { width: "100%", borderCollapse: "collapse" };
+const theadStyle = { background: theme.colors.primary, color: "white" };
+const th         = { padding: "12px", textAlign: "center", fontSize: "13px" };
+const td         = { padding: "12px", textAlign: "center", fontSize: "13px" };
+
+const gradePill = { padding: "3px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: "600" };

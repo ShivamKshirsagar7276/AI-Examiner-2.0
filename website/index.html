@@ -21,7 +21,6 @@ background:#f9f6f2;
 color:#3e2f2b;
 }
 
-/* NAVBAR */
 nav{
 display:flex;
 justify-content:space-between;
@@ -40,27 +39,30 @@ align-items:center;
 gap:12px;
 }
 
-.logo-img{
-width:42px;
-}
-
 .logo-text{
 font-size:20px;
 font-weight:700;
 letter-spacing:1px;
 }
 
+.nav-links{
+display:flex;
+align-items:center;
+gap:8px;
+}
+
 nav a{
 text-decoration:none;
 color:#5a3e36;
-margin-left:28px;
+padding:8px 16px;
 font-weight:600;
 font-size:14px;
 transition:0.3s;
+border-radius:20px;
 }
 
 nav a:hover{
-color:#000;
+background:#f4efe9;
 }
 
 .portal-btn{
@@ -70,7 +72,21 @@ padding:8px 18px;
 border-radius:20px;
 }
 
-/* HERO */
+.portal-btn:hover{
+background:#3e2f2b !important;
+}
+
+.student-portal-btn{
+background:#8b6a5d;
+color:white !important;
+padding:8px 18px;
+border-radius:20px;
+}
+
+.student-portal-btn:hover{
+background:#6b4f44 !important;
+}
+
 .hero{
 position:relative;
 padding:160px 8%;
@@ -106,6 +122,7 @@ margin-bottom:40px;
 .button-group{
 display:flex;
 gap:20px;
+flex-wrap:wrap;
 }
 
 .btn{
@@ -118,11 +135,22 @@ font-weight:600;
 cursor:pointer;
 transition:0.3s ease;
 box-shadow:0 15px 35px rgba(0,0,0,0.2);
+font-size:15px;
 }
 
 .btn:hover{
 transform:translateY(-5px);
 box-shadow:0 20px 45px rgba(0,0,0,0.3);
+}
+
+.btn-outline{
+background:transparent;
+color:white;
+border:2px solid rgba(255,255,255,0.6);
+}
+
+.btn-outline:hover{
+background:rgba(255,255,255,0.1);
 }
 
 .hero-right{
@@ -142,7 +170,6 @@ animation:float 4s ease-in-out infinite;
 100%{transform:translateY(0px);}
 }
 
-/* SECTION */
 .section{
 padding:140px 8%;
 text-align:center;
@@ -160,9 +187,9 @@ margin:auto;
 margin-bottom:70px;
 color:#6b5a50;
 line-height:1.8;
+font-size:16px;
 }
 
-/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
@@ -184,19 +211,82 @@ transform:translateY(-14px);
 box-shadow:0 35px 80px rgba(0,0,0,0.15);
 }
 
-/* CTA SECTION */
-.cta{
-background:#f4efe9;
+.card-icon{
+font-size:32px;
+margin-bottom:16px;
+}
+
+.card h4{
+font-size:18px;
+margin-bottom:10px;
+color:#3e2f2b;
+}
+
+.card p{
+color:#6b5a50;
+line-height:1.8;
+font-size:14px;
+}
+
+.portal-section{
 padding:120px 8%;
+background:#f4efe9;
 text-align:center;
 }
 
-.cta button{
-background:#5a3e36;
+.portal-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:30px;
+max-width:900px;
+margin:0 auto;
+}
+
+.portal-card{
+background:white;
+padding:40px;
+border-radius:24px;
+box-shadow:0 20px 50px rgba(0,0,0,0.08);
+text-align:center;
+transition:0.3s;
+}
+
+.portal-card:hover{
+transform:translateY(-8px);
+box-shadow:0 30px 70px rgba(0,0,0,0.15);
+}
+
+.portal-card-icon{font-size:48px;margin-bottom:16px;}
+.portal-card h3{font-size:20px;font-weight:700;margin-bottom:10px;color:#3e2f2b;}
+.portal-card p{font-size:14px;color:#888;line-height:1.8;margin-bottom:24px;}
+
+.portal-card-btn{
+display:inline-block;
+padding:12px 30px;
+border-radius:30px;
+font-weight:600;
+font-size:14px;
+cursor:pointer;
+border:none;
+transition:0.3s;
+text-decoration:none;
+}
+
+.portal-card-btn:hover{transform:translateY(-3px);}
+
+.btn-faculty{background:#5a3e36;color:white;}
+.btn-student{background:#8b6a5d;color:white;}
+
+.cta{
+background:linear-gradient(135deg,#5a3e36,#8b6a5d);
+padding:120px 8%;
+text-align:center;
 color:white;
 }
 
-/* FOOTER */
+.cta h2{font-size:42px;margin-bottom:20px;}
+.cta p{opacity:0.9;max-width:600px;margin:0 auto 40px;line-height:1.8;}
+
 .footer{
 background:#3e2f2b;
 color:#d9d2cc;
@@ -206,9 +296,7 @@ grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
 gap:50px;
 }
 
-.footer h4{
-margin-bottom:20px;
-}
+.footer h4{margin-bottom:20px;color:white;}
 
 .footer p,
 .footer a{
@@ -233,27 +321,14 @@ font-size:14px;
 }
 
 @media(max-width:900px){
-.hero-container{
-flex-direction:column;
-text-align:center;
-}
-
-.hero-right{
-text-align:center;
-margin-top:40px;
-}
-
-.hero-img{
-width:300px;
-}
-
-.hero-left h1{
-font-size:40px;
-}
-
-.button-group{
-flex-direction:column;
-}
+.hero-container{flex-direction:column;text-align:center;}
+.hero-right{text-align:center;margin-top:40px;}
+.hero-img{width:280px;}
+.hero-left h1{font-size:38px;}
+.button-group{flex-direction:column;align-items:center;}
+.portal-grid{grid-template-columns:1fr;}
+.nav-links{gap:4px;}
+nav a{padding:6px 10px;font-size:13px;}
 }
 </style>
 </head>
@@ -261,76 +336,124 @@ flex-direction:column;
 <body>
 
 <nav>
-<div class="nav-left">
-<img src="logo.png" class="logo-img">
-<div class="logo-text">GRADY</div>
-</div>
-<div>
-<a href="index.html">Home</a>
-<a href="#features">Features</a>
-<a href="result.html">Results</a>
-<a href="faculty.html" class="portal-btn">Faculty Portal</a>
-</div>
+  <div class="nav-left">
+    <div class="logo-text">GRADY</div>
+  </div>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="#features">Features</a>
+    <a href="result.html">Results</a>
+    <a href="student-login.html" class="student-portal-btn">Student Portal</a>
+    <a href="faculty.html" class="portal-btn">Faculty Portal</a>
+  </div>
 </nav>
 
+<!-- HERO -->
 <section class="hero">
-<div class="hero-container">
-
-<div class="hero-left">
-<h1>Structured AI Evaluation For Descriptive Examinations</h1>
-<p>AI-powered semantic grading combined with deterministic academic rule enforcement — built for structured institutional systems.</p>
-
-<div class="button-group">
-<button class="btn" onclick="window.location.href='result.html'">Check Result</button>
-<button class="btn" onclick="window.location.href='faculty.html'">Faculty Login</button>
-</div>
-</div>
-
-<div class="hero-right">
-<img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="hero-img">
-</div>
-
-</div>
+  <div class="hero-container">
+    <div class="hero-left">
+      <h1>Structured AI Evaluation For Descriptive Examinations</h1>
+      <p>AI-powered semantic grading combined with deterministic academic rule enforcement — built for structured institutional systems.</p>
+      <div class="button-group">
+        <button class="btn" onclick="window.location.href='result.html'">Check Result</button>
+        <button class="btn btn-outline" onclick="window.location.href='#portals'">Access Portals</button>
+      </div>
+    </div>
+    <div class="hero-right">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png" class="hero-img">
+    </div>
+  </div>
 </section>
 
+<!-- FEATURES -->
 <section class="section" id="features">
-<h2>Built For Institutional Precision</h2>
-<p class="subtitle">Designed to replicate faculty reasoning while enforcing structured university marking logic.</p>
+  <h2>Built For Institutional Precision</h2>
+  <p class="subtitle">Designed to replicate faculty reasoning while enforcing structured university marking logic.</p>
 
-<div class="grid">
-<div class="card"><h4>Rule Extraction</h4><p>Automatically detects attempt rules and marking structure.</p></div>
-<div class="card"><h4>Semantic Scoring</h4><p>Context-aware evaluation for descriptive responses.</p></div>
-<div class="card"><h4>Deterministic Engine</h4><p>Applies academic marking logic after AI reasoning.</p></div>
-<div class="card"><h4>Explainable Output</h4><p>Transparent scoring breakdown with evaluation metrics.</p></div>
-</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <h4>Rule Extraction</h4>
+      <p>Automatically detects attempt rules and marking structure from any university question paper format.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧠</div>
+      <h4>Semantic Scoring</h4>
+      <p>Context-aware evaluation for descriptive responses using advanced NLP similarity models.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">⚙️</div>
+      <h4>Deterministic Engine</h4>
+      <p>Applies structured academic marking logic after AI reasoning for consistent, fair results.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">💡</div>
+      <h4>Explainable Output</h4>
+      <p>Transparent scoring breakdown showing exactly why marks were awarded or deducted per question.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📄</div>
+      <h4>Photocopy System</h4>
+      <p>Students can request watermarked photocopies of their answer sheets through the student portal.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔄</div>
+      <h4>Revaluation Engine</h4>
+      <p>Faculty-approved revaluation requests trigger automatic AI re-evaluation of student papers.</p>
+    </div>
+  </div>
 </section>
 
+<!-- PORTALS -->
+<section class="portal-section" id="portals">
+  <h2>Access Your Portal</h2>
+  <p class="subtitle">Two dedicated portals for faculty and students — each with role-specific features.</p>
+
+  <div class="portal-grid">
+    <div class="portal-card">
+      <div class="portal-card-icon">👨‍🏫</div>
+      <h3>Faculty Portal</h3>
+      <p>Upload papers, manage evaluations, publish results, and handle student photocopy and revaluation requests.</p>
+      <a href="faculty.html" class="portal-card-btn btn-faculty">Faculty Login</a>
+    </div>
+    <div class="portal-card">
+      <div class="portal-card-icon">🎓</div>
+      <h3>Student Portal</h3>
+      <p>View your results, apply for photocopy of your answer sheet, and request revaluation if needed.</p>
+      <a href="student-login.html" class="portal-card-btn btn-student">Student Login</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
 <section class="cta">
-<h2>Ready to Modernize Your Evaluation Process?</h2>
-<p class="subtitle">Experience structured, transparent, AI-powered examination workflows.</p>
-<button class="btn" onclick="window.location.href='faculty.html'">Access Faculty Portal</button>
+  <h2>Ready to Modernize Your Evaluation Process?</h2>
+  <p>Experience structured, transparent, AI-powered examination workflows built for real institutional needs.</p>
+  <button class="btn" onclick="window.location.href='result.html'">Check Your Result</button>
 </section>
 
+<!-- FOOTER -->
 <section class="footer">
-<div>
-<h4>GRADY</h4>
-<p>AI-powered descriptive exam evaluation platform built for structured academic institutions.</p>
-</div>
-<div>
-<h4>Platform</h4>
-<p><a href="index.html">Home</a></p>
-<p><a href="#features">Features</a></p>
-<p><a href="result.html">Results</a></p>
-<p><a href="faculty.html">Faculty Portal</a></p>
-</div>
-<div>
-<h4>Contact</h4>
-<p>support@gradyai.com</p>
-</div>
+  <div>
+    <h4>GRADY</h4>
+    <p>AI-powered descriptive exam evaluation platform built for structured academic institutions.</p>
+  </div>
+  <div>
+    <h4>Platform</h4>
+    <p><a href="index.html">Home</a></p>
+    <p><a href="#features">Features</a></p>
+    <p><a href="result.html">Results</a></p>
+    <p><a href="student-login.html">Student Portal</a></p>
+    <p><a href="faculty.html">Faculty Portal</a></p>
+  </div>
+  <div>
+    <h4>Contact</h4>
+    <p>support@gradyai.com</p>
+  </div>
 </section>
 
 <div class="footer-bottom">
-© 2026 GRADY — Smart AI Examiner. All Rights Reserved.
+  © 2026 GRADY — Smart AI Examiner. All Rights Reserved.
 </div>
 
 </body>

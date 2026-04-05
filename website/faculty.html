@@ -2,283 +2,423 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GRADY — Faculty Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-
-body{
-background:#f4efe9;
-color:#3e2f2b;
-}
-
-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:20px 8%;
-background:white;
-box-shadow:0 4px 20px rgba(0,0,0,0.05);
-}
-
-header h2{font-size:20px;}
-
-.container{
-max-width:500px;
-margin:100px auto;
-background:white;
-padding:40px;
-border-radius:20px;
-box-shadow:0 20px 60px rgba(0,0,0,0.1);
-}
-
-input{
-width:100%;
-padding:14px;
-margin-bottom:15px;
-border-radius:10px;
-border:1px solid #ddd;
-}
-
-button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:30px;
-background:#5a3e36;
-color:white;
-font-weight:600;
-cursor:pointer;
-margin-top:10px;
-}
-
-button:hover{opacity:0.9;}
-
-.error{
-color:red;
-margin-top:10px;
-display:none;
-text-align:center;
-}
-
-.dashboard{
-display:none;
-max-width:1000px;
-margin:60px auto;
-padding:40px;
-}
-
-.exam-card{
-background:white;
-padding:20px;
-margin-bottom:20px;
-border-radius:15px;
-box-shadow:0 10px 25px rgba(0,0,0,0.08);
-}
-
-.exam-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.status{
-font-weight:600;
-}
-
-.actions{
-margin-top:15px;
-display:flex;
-gap:10px;
-}
-
-.small-btn{
-padding:8px 18px;
-border:none;
-border-radius:20px;
-background:#8b6a5d;
-color:white;
-cursor:pointer;
-width:auto;
-}
+body{background:#f4efe9;color:#3e2f2b;min-height:100vh;}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 8%;background:white;box-shadow:0 4px 20px rgba(0,0,0,0.05);position:sticky;top:0;z-index:100;}
+.logo{font-weight:700;font-size:20px;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.back-link{color:#5a3e36;text-decoration:none;font-size:13px;font-weight:600;}
+.logout-btn{padding:8px 20px;border:none;border-radius:20px;background:#5a3e36;color:white;font-weight:600;cursor:pointer;font-size:13px;display:none;transition:0.3s;}
+.logout-btn:hover{opacity:0.85;}
+.login-wrap{min-height:calc(100vh - 70px);display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.login-box{background:white;padding:50px;border-radius:24px;box-shadow:0 30px 80px rgba(0,0,0,0.1);width:100%;max-width:460px;}
+.login-box h3{font-size:24px;font-weight:700;text-align:center;margin-bottom:8px;color:#3e2f2b;}
+.login-box p{font-size:13px;color:#888;text-align:center;margin-bottom:32px;}
+.input-group{margin-bottom:18px;}
+.input-group label{display:block;font-size:13px;font-weight:600;color:#5a3e36;margin-bottom:6px;}
+.input-group input{width:100%;padding:14px;border-radius:12px;border:1.5px solid #e8e0da;font-size:14px;font-family:'Poppins',sans-serif;outline:none;transition:0.3s;}
+.input-group input:focus{border-color:#5a3e36;box-shadow:0 0 0 3px rgba(90,62,54,0.1);}
+.login-btn{width:100%;padding:14px;border:none;border-radius:30px;background:linear-gradient(135deg,#5a3e36,#8b6a5d);color:white;font-weight:700;font-size:15px;cursor:pointer;transition:0.3s;margin-top:8px;}
+.login-btn:hover{transform:translateY(-3px);box-shadow:0 15px 35px rgba(90,62,54,0.3);}
+.error{color:#dc2626;background:#fee2e2;border-radius:10px;padding:10px 14px;font-size:13px;margin-top:15px;display:none;text-align:center;}
+.loader-line{height:3px;background:linear-gradient(135deg,#5a3e36,#8b6a5d);border-radius:99px;display:none;margin-top:15px;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:0.4;}50%{opacity:1;}}
+.dashboard{display:none;max-width:1100px;margin:0 auto;padding:40px 20px;}
+.dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;}
+.dash-title{font-size:26px;font-weight:700;color:#3e2f2b;}
+.dash-sub{font-size:14px;color:#888;margin-top:4px;}
+.tabs{display:flex;gap:8px;margin-bottom:30px;background:white;padding:8px;border-radius:16px;box-shadow:0 5px 20px rgba(0,0,0,0.05);width:fit-content;}
+.tab{padding:10px 24px;border:none;border-radius:12px;background:transparent;color:#5a3e36;font-weight:600;cursor:pointer;font-size:14px;transition:0.3s;display:flex;align-items:center;gap:8px;}
+.tab.active{background:linear-gradient(135deg,#5a3e36,#8b6a5d);color:white;}
+.badge{background:#dc2626;color:white;border-radius:99px;padding:1px 7px;font-size:11px;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.exam-card{background:white;padding:24px 28px;margin-bottom:16px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.06);transition:0.3s;}
+.exam-card:hover{box-shadow:0 15px 40px rgba(0,0,0,0.1);}
+.exam-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.exam-info strong{font-size:16px;display:block;margin-bottom:4px;}
+.exam-info span{font-size:13px;color:#888;}
+.status-pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:700;}
+.status-draft{background:#f1f5f9;color:#64748b;}
+.status-published{background:#fef3c7;color:#d97706;}
+.status-locked{background:#d1fae5;color:#065f46;}
+.actions{display:flex;gap:10px;flex-wrap:wrap;}
+.small-btn{padding:8px 18px;border:none;border-radius:20px;font-weight:600;cursor:pointer;font-size:13px;transition:0.3s;}
+.small-btn:hover{transform:translateY(-2px);}
+.btn-publish{background:#f59e0b;color:white;}
+.btn-lock{background:#16a34a;color:white;}
+.btn-view{background:#f4efe9;color:#5a3e36;border:1px solid #d4c4ba;}
+.filter-row{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.filter-btn{padding:8px 18px;border:1.5px solid #e8e0da;border-radius:20px;background:white;color:#5a3e36;font-weight:600;cursor:pointer;font-size:13px;transition:0.3s;}
+.filter-btn.active{background:#5a3e36;color:white;border-color:#5a3e36;}
+.req-card{background:white;padding:22px 26px;margin-bottom:14px;border-radius:16px;box-shadow:0 8px 25px rgba(0,0,0,0.06);}
+.req-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.req-type{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;}
+.req-meta{font-size:13px;color:#888;margin-bottom:12px;line-height:1.8;}
+.req-status{padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;}
+.status-pending{background:#fff3cd;color:#856404;}
+.status-approved{background:#d1fae5;color:#065f46;}
+.status-rejected{background:#fee2e2;color:#991b1b;}
+.req-reason{background:#f8f9fa;padding:10px 14px;border-radius:8px;font-size:13px;color:#555;margin-bottom:12px;}
+.req-remark{background:#f0f9ff;padding:10px 14px;border-radius:8px;font-size:13px;color:#0369a1;margin-bottom:12px;}
+.req-info-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;font-size:12px;color:#166534;margin-bottom:12px;}
+.req-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px;}
+.remark-input{flex:1;padding:10px 14px;border-radius:10px;border:1.5px solid #e8e0da;font-size:13px;min-width:200px;outline:none;font-family:'Poppins',sans-serif;}
+.remark-input:focus{border-color:#5a3e36;}
+.approve-btn{padding:10px 20px;border-radius:20px;border:none;background:#16a34a;color:white;cursor:pointer;font-weight:700;font-size:13px;transition:0.3s;}
+.reject-btn{padding:10px 20px;border-radius:20px;border:none;background:#dc2626;color:white;cursor:pointer;font-weight:700;font-size:13px;transition:0.3s;}
+.approve-btn:hover,.reject-btn:hover{transform:translateY(-2px);}
+.empty{text-align:center;padding:60px;color:#aaa;background:white;border-radius:16px;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.loader{display:none;width:32px;height:32px;border:4px solid #eee;border-top:4px solid #5a3e36;border-radius:50%;animation:spin 1s linear infinite;margin:40px auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
-
 <body>
 
 <header>
-<h2>GRADY — Faculty Dashboard</h2>
-<button onclick="logout()">Logout</button>
+  <div class="logo">GRADY</div>
+  <div class="header-right">
+    <a href="index.html" class="back-link">← Home</a>
+    <button class="logout-btn" id="logoutBtn" onclick="logout()">Logout</button>
+  </div>
 </header>
 
-<!-- LOGIN -->
-<div class="container" id="loginBox">
-<h3 style="text-align:center;margin-bottom:25px;">Faculty Login</h3>
-
-<input type="email" id="email" placeholder="Email">
-<input type="password" id="password" placeholder="Password">
-
-<button onclick="login()">Login</button>
-<div class="error" id="error"></div>
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <h3>Faculty Login</h3>
+    <p>Sign in to manage exams and student requests.</p>
+    <div class="input-group">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="faculty@institution.edu">
+    </div>
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter your password">
+    </div>
+    <button class="login-btn" onclick="login()">Login to Dashboard</button>
+    <div class="loader-line" id="loaderLine"></div>
+    <div class="error" id="error"></div>
+  </div>
 </div>
 
-<!-- DASHBOARD -->
 <div class="dashboard" id="dashboard">
-<h3 style="margin-bottom:30px;">Exams</h3>
-<div id="examList"></div>
+  <div class="dash-header">
+    <div>
+      <div class="dash-title">Faculty Dashboard</div>
+      <div class="dash-sub">Manage exams and student requests</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-exams-btn"    onclick="switchTab('exams', this)">📋 Exams</button>
+    <button class="tab"        id="tab-requests-btn" onclick="switchTab('requests', this)">📩 Student Requests</button>
+  </div>
+
+  <div class="tab-content active" id="tab-exams">
+    <div class="loader" id="examLoader"></div>
+    <div id="examList"></div>
+  </div>
+
+  <div class="tab-content" id="tab-requests">
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterReqs('all',this)">All</button>
+      <button class="filter-btn"        onclick="filterReqs('pending',this)">⏳ Pending</button>
+      <button class="filter-btn"        onclick="filterReqs('approved',this)">✅ Approved</button>
+      <button class="filter-btn"        onclick="filterReqs('rejected',this)">❌ Rejected</button>
+    </div>
+    <div class="loader" id="reqLoader"></div>
+    <div id="requestList"></div>
+  </div>
 </div>
 
 <script>
+const BASE_URL    = "http://127.0.0.1:8000";
+let token         = localStorage.getItem("faculty_token") || "";
+let allRequests   = [];
+let currentFilter = "all";
 
-const BASE_URL = "http://127.0.0.1:8000";
-let token = localStorage.getItem("faculty_token") || "";
-
-/* AUTO LOGIN IF TOKEN EXISTS */
 if(token){
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("dashboard").style.display="block";
-    loadExams();
+  showDashboard();
+  loadExams();
+  loadRequests();
 }
 
-/* LOGIN */
+function showDashboard(){
+  document.getElementById("loginWrap").style.display  = "none";
+  document.getElementById("dashboard").style.display  = "block";
+  document.getElementById("logoutBtn").style.display  = "block";
+}
+
+function switchTab(tab, el){
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById(`tab-${tab}`).classList.add("active");
+}
+
 async function login(){
+  const email      = document.getElementById("email").value.trim();
+  const password   = document.getElementById("password").value.trim();
+  const error      = document.getElementById("error");
+  const loaderLine = document.getElementById("loaderLine");
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const error = document.getElementById("error");
+  error.style.display      = "none";
+  loaderLine.style.display = "none";
 
-    error.style.display="none";
+  if(!email || !password){
+    error.textContent   = "Please enter email and password.";
+    error.style.display = "block";
+    return;
+  }
 
-    try{
+  loaderLine.style.display = "block";
 
-        const res = await fetch(`${BASE_URL}/auth/login`,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
+  try{
+    const res = await fetch(`${BASE_URL}/auth/login`, {
+      method:  "POST",
+      headers: {"Content-Type": "application/json"},
+      body:    JSON.stringify({email: email, password: password})
+    });
 
-        if(!res.ok){
-            const err = await res.json();
-            throw new Error(err.detail);
-        }
+    loaderLine.style.display = "none";
 
-        const data = await res.json();
-        token = data.access_token;
-        localStorage.setItem("faculty_token", token);
-
-        document.getElementById("loginBox").style.display="none";
-        document.getElementById("dashboard").style.display="block";
-
-        loadExams();
-
-    }catch(err){
-        error.textContent = err.message;
-        error.style.display="block";
+    if(!res.ok){
+      const err = await res.json();
+      throw new Error(err.detail || "Invalid credentials. Please check your email and password.");
     }
+
+    const data = await res.json();
+    token = data.access_token;
+    localStorage.setItem("faculty_token", token);
+
+    showDashboard();
+    loadExams();
+    loadRequests();
+
+  } catch(err){
+    loaderLine.style.display = "none";
+    error.textContent        = err.message;
+    error.style.display      = "block";
+  }
 }
 
-/* LOAD EXAMS */
 async function loadExams(){
+  const loader = document.getElementById("examLoader");
+  const list   = document.getElementById("examList");
+  loader.style.display = "block";
 
-    const res = await fetch(`${BASE_URL}/exams/`,{
-        headers:{
-            "Authorization": `Bearer ${token}`
-        }
+  try{
+    const res = await fetch(`${BASE_URL}/exams/`, {
+      headers: {"Authorization": `Bearer ${token}`}
     });
+
+    if(!res.ok) throw new Error("Failed to load exams");
 
     const exams = await res.json();
-    const list = document.getElementById("examList");
-    list.innerHTML = "";
+    loader.style.display = "none";
+    list.innerHTML       = "";
 
-    exams.forEach(exam=>{
+    if(!exams.length){
+      list.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div>No exams found.</div></div>`;
+      return;
+    }
 
-        list.innerHTML += `
-            <div class="exam-card">
-                <div class="exam-header">
-                    <div>
-                        <strong>${exam.title}</strong><br>
-                        Class: ${exam.class_name} | Subject: ${exam.subject}
-                    </div>
-                    <div class="status">
-                        Status: ${exam.result_status}
-                    </div>
-                </div>
-
-                <div class="actions">
-                    <button class="small-btn" onclick="publish(${exam.id})">
-                        Publish
-                    </button>
-
-                    <button class="small-btn" onclick="lockResult(${exam.id})">
-                        Lock
-                    </button>
-
-                    <button class="small-btn" onclick="viewSubmissions(${exam.id})">
-                        Submissions
-                    </button>
-                </div>
+    exams.forEach(exam => {
+      list.innerHTML += `
+        <div class="exam-card">
+          <div class="exam-header">
+            <div class="exam-info">
+              <strong>${exam.title}</strong>
+              <span>${exam.class_name} — ${exam.division} | ${exam.subject} | ${exam.total_marks} marks</span>
             </div>
-        `;
+            <span class="status-pill status-${exam.result_status}">
+              ${exam.result_status.toUpperCase()}
+            </span>
+          </div>
+          <div class="actions">
+            ${exam.result_status === "draft"
+              ? `<button class="small-btn btn-publish" onclick="publish(${exam.id})">📢 Publish Result</button>`
+              : ""
+            }
+            ${exam.result_status === "published"
+              ? `<button class="small-btn btn-lock" onclick="lockResult(${exam.id})">🔒 Lock Result</button>`
+              : ""
+            }
+            <button class="small-btn btn-view" onclick="viewSubmissions(${exam.id}, '${exam.title}')">
+              👁 View Submissions
+            </button>
+          </div>
+        </div>
+      `;
     });
+
+  } catch(err){
+    loader.style.display = "none";
+    list.innerHTML = `<div class="empty"><div>Failed to load exams. Please refresh.</div></div>`;
+  }
 }
 
-/* PUBLISH */
-async function publish(id){
+async function loadRequests(){
+  const loader = document.getElementById("reqLoader");
+  loader.style.display = "block";
 
-    await fetch(`${BASE_URL}/exams/${id}/publish-result`,{
-        method:"PUT",
-        headers:{
-            "Authorization": `Bearer ${token}`
-        }
+  try{
+    const res = await fetch(`${BASE_URL}/student/requests/all`, {
+      headers: {"Authorization": `Bearer ${token}`}
     });
 
-    loadExams();
+    if(!res.ok) throw new Error("Failed to load requests");
+
+    allRequests = await res.json();
+
+    const pending = allRequests.filter(r => r.status === "pending").length;
+    const reqBtn  = document.getElementById("tab-requests-btn");
+    reqBtn.innerHTML = pending > 0
+      ? `📩 Student Requests <span class="badge">${pending}</span>`
+      : `📩 Student Requests`;
+
+    loader.style.display = "none";
+    renderRequests(currentFilter);
+
+  } catch(err){
+    document.getElementById("reqLoader").style.display = "none";
+  }
 }
 
-/* LOCK */
-async function lockResult(id){
-
-    await fetch(`${BASE_URL}/exams/${id}/lock-result`,{
-        method:"PUT",
-        headers:{
-            "Authorization": `Bearer ${token}`
-        }
-    });
-
-    loadExams();
+function filterReqs(filter, el){
+  currentFilter = filter;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+  renderRequests(filter);
 }
 
-/* VIEW SUBMISSIONS */
-async function viewSubmissions(id){
+function renderRequests(filter){
+  const list = document.getElementById("requestList");
 
-    const res = await fetch(`${BASE_URL}/exams/${id}/submissions`,{
-        headers:{
-            "Authorization": `Bearer ${token}`
+  const filtered = filter === "all"
+    ? allRequests
+    : allRequests.filter(r => r.status === filter);
+
+  if(!filtered.length){
+    list.innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📭</div>
+        <div>No ${filter === "all" ? "" : filter} requests found.</div>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = "";
+
+  filtered.forEach(r => {
+    const typeIcon  = r.request_type === "photocopy" ? "📄" : "🔄";
+    const typeLabel = r.request_type === "photocopy" ? "Photocopy Request" : "Revaluation Request";
+    const isPending = r.status === "pending";
+
+    list.innerHTML += `
+      <div class="req-card">
+        <div class="req-header">
+          <div class="req-type">${typeIcon} ${typeLabel}</div>
+          <span class="req-status status-${r.status}">${r.status.toUpperCase()}</span>
+        </div>
+        <div class="req-meta">
+          Roll No: <strong>${r.roll_number}</strong> &nbsp;·&nbsp;
+          Submission ID: ${r.submission_id} &nbsp;·&nbsp;
+          ${new Date(r.requested_at).toLocaleDateString("en-IN", {
+            day: "numeric", month: "short", year: "numeric"
+          })}
+        </div>
+        ${r.reason ? `<div class="req-reason">💬 Reason: ${r.reason}</div>` : ""}
+        ${r.faculty_remark ? `<div class="req-remark">📝 Your Remark: ${r.faculty_remark}</div>` : ""}
+        ${r.status === "approved" && r.request_type === "photocopy"
+          ? `<div class="req-info-box">✅ Student can now download the watermarked photocopy PDF.</div>`
+          : ""
         }
-    });
+        ${r.status === "approved" && r.request_type === "revaluation"
+          ? `<div class="req-info-box">✅ AI re-evaluation was triggered automatically on approval.</div>`
+          : ""
+        }
+        ${isPending ? `
+          <div class="req-actions">
+            <input type="text" class="remark-input" id="remark-${r.id}" placeholder="Add remark (optional)">
+            <button class="approve-btn" onclick="handleRequest(${r.id}, 'approve')">✓ Approve</button>
+            <button class="reject-btn"  onclick="handleRequest(${r.id}, 'reject')">✗ Reject</button>
+          </div>
+        ` : ""}
+      </div>
+    `;
+  });
+}
 
-    const submissions = await res.json();
-
-    alert(
-        submissions.map(s =>
-            `Roll: ${s.roll_number} | Marks: ${s.total_marks} | Grade: ${s.grade}`
-        ).join("\n")
+async function handleRequest(requestId, action){
+  const remark = document.getElementById(`remark-${requestId}`)?.value || "";
+  try{
+    const res = await fetch(
+      `${BASE_URL}/student/requests/${requestId}/${action}?faculty_remark=${encodeURIComponent(remark)}`,
+      {method: "PUT", headers: {"Authorization": `Bearer ${token}`}}
     );
+    if(!res.ok){
+      const err = await res.json();
+      throw new Error(err.detail);
+    }
+    await loadRequests();
+  } catch(err){
+    alert(err.message);
+  }
 }
 
-/* LOGOUT */
+async function publish(id){
+  await fetch(`${BASE_URL}/exams/${id}/publish-result`, {
+    method: "PUT", headers: {"Authorization": `Bearer ${token}`}
+  });
+  loadExams();
+}
+
+async function lockResult(id){
+  await fetch(`${BASE_URL}/exams/${id}/lock-result`, {
+    method: "PUT", headers: {"Authorization": `Bearer ${token}`}
+  });
+  loadExams();
+}
+
+async function viewSubmissions(examId, examTitle){
+  const res = await fetch(`${BASE_URL}/exams/${examId}/submissions`, {
+    headers: {"Authorization": `Bearer ${token}`}
+  });
+  const submissions = await res.json();
+  if(!submissions.length){
+    alert(`No submissions for ${examTitle}`);
+    return;
+  }
+  alert(
+    `${examTitle} — ${submissions.length} submissions\n\n` +
+    submissions.map(s =>
+      `Roll: ${s.roll_number}  |  Marks: ${s.total_marks}  |  Grade: ${s.grade}`
+    ).join("\n")
+  );
+}
+
 function logout(){
-    localStorage.removeItem("faculty_token");
-    location.reload();
+  localStorage.removeItem("faculty_token");
+  token = "";
+  document.getElementById("loginWrap").style.display  = "block";
+  document.getElementById("dashboard").style.display  = "none";
+  document.getElementById("logoutBtn").style.display  = "none";
+  document.getElementById("email").value              = "";
+  document.getElementById("password").value           = "";
 }
 
+document.addEventListener("keypress", e => {
+  if(e.key === "Enter" && document.getElementById("loginWrap").style.display !== "none"){
+    login();
+  }
+});
 </script>
-
 </body>
 </html>

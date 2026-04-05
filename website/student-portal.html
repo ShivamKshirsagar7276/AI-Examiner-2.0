@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRADY — Student Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#f9f6f2;color:#3e2f2b;min-height:100vh;}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 8%;background:white;box-shadow:0 4px 20px rgba(0,0,0,0.05);position:sticky;top:0;z-index:100;}
+.logo{font-weight:700;font-size:20px;color:#3e2f2b;}
+.header-right{display:flex;align-items:center;gap:16px;}
+.student-info{font-size:13px;color:#888;}
+.student-info strong{color:#3e2f2b;}
+.logout-btn{padding:8px 20px;border:none;border-radius:20px;background:#5a3e36;color:white;cursor:pointer;font-weight:600;font-size:13px;}
+.container{max-width:900px;margin:0 auto;padding:50px 20px;}
+.welcome-card{background:linear-gradient(135deg,#5a3e36,#8b6a5d);color:white;padding:35px 40px;border-radius:20px;margin-bottom:35px;display:flex;justify-content:space-between;align-items:center;}
+.welcome-card h2{font-size:24px;font-weight:700;margin-bottom:6px;}
+.welcome-card p{font-size:14px;opacity:0.85;}
+.section-title{font-size:18px;font-weight:700;color:#3e2f2b;margin-bottom:20px;}
+.exam-card{background:white;padding:28px 32px;border-radius:20px;box-shadow:0 15px 40px rgba(0,0,0,0.07);margin-bottom:20px;}
+.exam-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+.exam-title{font-size:17px;font-weight:700;color:#1e293b;margin-bottom:4px;}
+.exam-meta{font-size:13px;color:#888;}
+.marks-section{text-align:right;}
+.marks-big{font-size:28px;font-weight:700;color:#5a3e36;}
+.marks-sub{font-size:13px;color:#888;margin-top:2px;}
+.grade-badge{display:inline-block;padding:4px 14px;border-radius:20px;background:#f4efe9;color:#5a3e36;font-size:12px;font-weight:700;margin-top:6px;}
+.progress-wrap{margin-bottom:18px;}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:6px;}
+.progress-bar{height:10px;background:#f0ebe6;border-radius:99px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:99px;transition:width 0.8s ease;}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.action-btn{padding:10px 22px;border-radius:20px;font-weight:600;cursor:pointer;font-size:13px;transition:0.3s;border:none;}
+.btn-photocopy{background:#f4efe9;color:#5a3e36;border:1.5px solid #d4c4ba;}
+.btn-revaluation{background:#f4efe9;color:#5a3e36;border:1.5px solid #d4c4ba;}
+.btn-download{background:linear-gradient(135deg,#5a3e36,#8b6a5d);color:white;}
+.btn-disabled{background:#f0f0f0;color:#aaa;cursor:not-allowed;border:1.5px solid #eee;}
+.status-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin-left:6px;}
+.tag-pending{background:#fff3cd;color:#856404;}
+.tag-approved{background:#d1fae5;color:#065f46;}
+.tag-rejected{background:#fee2e2;color:#991b1b;}
+.remark-text{font-size:12px;color:#888;margin-top:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;}
+
+/* REVALUATION COMPARISON */
+.reval-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:20px;margin-top:16px;}
+.reval-title{font-size:13px;font-weight:700;color:#166534;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.comp-box{background:white;border-radius:10px;padding:16px;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.04);}
+.comp-label{font-size:11px;color:#888;margin-bottom:6px;font-weight:600;}
+.comp-value{font-size:22px;font-weight:700;}
+.comp-old{color:#dc2626;}
+.comp-new{color:#16a34a;}
+.comp-grade{font-size:12px;color:#888;margin-top:4px;}
+.diff-wrap{text-align:center;margin-bottom:14px;}
+.diff-pill{display:inline-block;padding:5px 16px;border-radius:20px;font-size:13px;font-weight:700;}
+.diff-up{background:#d1fae5;color:#065f46;}
+.diff-down{background:#fee2e2;color:#991b1b;}
+.diff-same{background:#f1f5f9;color:#64748b;}
+.q-table{width:100%;border-collapse:collapse;font-size:13px;}
+.q-table th{background:#f0fdf4;color:#166534;padding:8px 12px;text-align:left;font-size:12px;}
+.q-table td{padding:8px 12px;border-bottom:1px solid #dcfce7;}
+.q-table tr:last-child td{border-bottom:none;}
+.q-up{color:#16a34a;font-weight:700;}
+.q-down{color:#dc2626;font-weight:700;}
+.q-same{color:#888;}
+
+.no-results{text-align:center;padding:80px 20px;background:white;border-radius:20px;color:#aaa;}
+.loader-wrap{text-align:center;padding:80px;}
+.loader{width:36px;height:36px;border:4px solid #eee;border-top:4px solid #5a3e36;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;}
+.modal-overlay.active{display:flex;}
+.modal{background:white;padding:40px;border-radius:24px;max-width:500px;width:90%;box-shadow:0 40px 80px rgba(0,0,0,0.2);}
+.modal-icon{font-size:36px;margin-bottom:12px;}
+.modal h3{font-size:20px;font-weight:700;margin-bottom:8px;color:#1e293b;}
+.modal p{font-size:13px;color:#888;margin-bottom:24px;line-height:1.6;}
+.modal textarea{width:100%;padding:14px;border-radius:12px;border:1.5px solid #e8e0da;font-size:14px;font-family:'Poppins',sans-serif;resize:vertical;min-height:100px;margin-bottom:20px;outline:none;}
+.modal-actions{display:flex;gap:12px;}
+.modal-confirm{flex:1;padding:13px;border:none;border-radius:20px;background:linear-gradient(135deg,#5a3e36,#8b6a5d);color:white;font-weight:600;cursor:pointer;font-size:14px;}
+.modal-cancel{flex:1;padding:13px;border:1.5px solid #ddd;border-radius:20px;background:white;color:#555;font-weight:600;cursor:pointer;font-size:14px;}
+.success-msg{background:#d1fae5;color:#065f46;border-radius:10px;padding:12px;margin-top:15px;font-size:13px;font-weight:600;text-align:center;display:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">GRADY</div>
+  <div class="header-right">
+    <div class="student-info">
+      <strong id="headerRoll"></strong> &nbsp;·&nbsp;
+      <span id="headerClass"></span> &nbsp;·&nbsp;
+      Div <span id="headerDiv"></span>
+    </div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="welcome-card">
+    <div>
+      <h2>Welcome, Roll No. <span id="welcomeName"></span> 👋</h2>
+      <p>View your results and manage your academic requests below.</p>
+    </div>
+    <div style="font-size:50px;">🎓</div>
+  </div>
+
+  <div class="loader-wrap" id="loaderWrap">
+    <div class="loader"></div>
+    <div style="color:#888;font-size:14px;">Loading your results...</div>
+  </div>
+
+  <div id="content" style="display:none;">
+    <div class="section-title">📋 My Results</div>
+    <div id="resultsList"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="applyModal">
+  <div class="modal">
+    <div class="modal-icon" id="modalIcon"></div>
+    <h3 id="modalTitle"></h3>
+    <p  id="modalDesc"></p>
+    <textarea id="applyReason" placeholder="Reason for request (optional)..."></textarea>
+    <div class="modal-actions">
+      <button class="modal-cancel"  onclick="closeModal()">Cancel</button>
+      <button class="modal-confirm" onclick="submitRequest()" id="submitBtn">Submit Request</button>
+    </div>
+    <div class="success-msg" id="successMsg"></div>
+  </div>
+</div>
+
+<script>
+const BASE_URL  = "http://127.0.0.1:8000";
+const token     = localStorage.getItem("student_token");
+const roll      = localStorage.getItem("student_roll");
+const division  = localStorage.getItem("student_division");
+const className = localStorage.getItem("student_class");
+
+if(!token){ window.location.href = "student-login.html"; }
+
+document.getElementById("headerRoll").textContent  = roll;
+document.getElementById("headerClass").textContent = className;
+document.getElementById("headerDiv").textContent   = division;
+document.getElementById("welcomeName").textContent = roll;
+
+let currentSubmissionId = null;
+let currentRequestType  = null;
+
+window.onload = loadDashboard;
+
+async function loadDashboard(){
+  try{
+    const [dashRes, reqRes] = await Promise.all([
+      fetch(`${BASE_URL}/student/dashboard`,   {headers: {"Authorization": `Bearer ${token}`}}),
+      fetch(`${BASE_URL}/student/my-requests`, {headers: {"Authorization": `Bearer ${token}`}})
+    ]);
+
+    if(!dashRes.ok) throw new Error("Session expired. Please login again.");
+
+    const dash       = await dashRes.json();
+    const myRequests = reqRes.ok ? await reqRes.json() : [];
+
+    document.getElementById("loaderWrap").style.display = "none";
+    document.getElementById("content").style.display    = "block";
+
+    const list = document.getElementById("resultsList");
+
+    if(!dash.results || dash.results.length === 0){
+      list.innerHTML = `
+        <div class="no-results">
+          <div style="font-size:50px;margin-bottom:16px;">📭</div>
+          <div style="font-size:16px;font-weight:600;margin-bottom:8px;">No Results Yet</div>
+          <div style="font-size:14px;">Your results will appear here once faculty publishes them.</div>
+        </div>
+      `;
+      return;
+    }
+
+    list.innerHTML = "";
+
+    dash.results.forEach(r => {
+      const percent   = r.percentage || 0;
+      const fillColor = percent >= 60 ? "#16a34a" : percent >= 40 ? "#d97706" : "#dc2626";
+
+      const photoReq = myRequests.find(
+        req => req.submission_id === r.submission_id && req.request_type === "photocopy"
+      );
+      const revalReq = myRequests.find(
+        req => req.submission_id === r.submission_id && req.request_type === "revaluation"
+      );
+
+      list.innerHTML += `
+        <div class="exam-card">
+          <div class="exam-header">
+            <div>
+              <div class="exam-title">${r.exam_title}</div>
+              <div class="exam-meta">Subject: ${r.subject}</div>
+            </div>
+            <div class="marks-section">
+              <div class="marks-big">${r.total_marks} <span style="font-size:16px;color:#aaa;">/ ${r.max_marks}</span></div>
+              <div class="marks-sub">Total Marks</div>
+              <div class="grade-badge">${r.grade}</div>
+            </div>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Performance</span>
+              <span>${percent}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${percent}%;background:${fillColor};"></div>
+            </div>
+          </div>
+
+          <div class="actions">
+            ${buildPhotoBtn(r, photoReq)}
+            ${buildRevalBtn(r, revalReq)}
+          </div>
+
+          ${photoReq?.faculty_remark
+            ? `<div class="remark-text">📋 Photocopy Remark: ${photoReq.faculty_remark}</div>`
+            : ""
+          }
+          ${revalReq?.faculty_remark && revalReq.status === "rejected"
+            ? `<div class="remark-text">📋 Revaluation Remark: ${revalReq.faculty_remark}</div>`
+            : ""
+          }
+
+          ${buildRevalComparison(r, revalReq)}
+        </div>
+      `;
+    });
+
+  } catch(err){
+    document.getElementById("loaderWrap").style.display = "none";
+    alert(err.message);
+    if(err.message.includes("Session")) logout();
+  }
+}
+
+function buildPhotoBtn(result, req){
+  if(!req) return `
+    <button class="action-btn btn-photocopy"
+      onclick="openModal(${result.submission_id}, 'photocopy', '${result.exam_title}')">
+      📄 Apply Photocopy
+    </button>
+  `;
+
+  let html = `
+    <button class="action-btn btn-disabled" disabled>
+      📄 Photocopy
+      <span class="status-tag tag-${req.status}">${req.status.toUpperCase()}</span>
+    </button>
+  `;
+
+  if(req.status === "approved"){
+    html += `
+      <button class="action-btn btn-download"
+        onclick="downloadPhotocopy(${result.submission_id})">
+        ⬇ Download Photocopy
+      </button>
+    `;
+  }
+
+  return html;
+}
+
+function buildRevalBtn(result, req){
+  if(!req) return `
+    <button class="action-btn btn-revaluation"
+      onclick="openModal(${result.submission_id}, 'revaluation', '${result.exam_title}')">
+      🔄 Apply Revaluation
+    </button>
+  `;
+
+  return `
+    <button class="action-btn btn-disabled" disabled>
+      🔄 Revaluation
+      <span class="status-tag tag-${req.status}">${req.status.toUpperCase()}</span>
+    </button>
+  `;
+}
+
+function buildRevalComparison(result, revalReq){
+  if(!revalReq || revalReq.status !== "approved") return "";
+
+  const oldMarks = revalReq.old_marks;
+  const newMarks = result.total_marks;
+
+  if(oldMarks === null || oldMarks === undefined) return `
+    <div class="reval-box">
+      <div class="reval-title">🔄 Revaluation Approved — Paper Re-evaluated by AI</div>
+      <p style="font-size:13px;color:#555;">Your paper has been re-evaluated. Check your updated marks above.</p>
+    </div>
+  `;
+
+  const diff    = parseFloat((newMarks - oldMarks).toFixed(2));
+  const diffText = diff > 0 ? `+${diff} marks gained` : diff < 0 ? `${diff} marks` : "No change in marks";
+  const diffClass = diff > 0 ? "diff-up" : diff < 0 ? "diff-down" : "diff-same";
+
+  let qTableHTML = "";
+  if(revalReq.old_eval_json && Object.keys(revalReq.old_eval_json).length > 0){
+    qTableHTML = `
+      <table class="q-table">
+        <thead>
+          <tr>
+            <th>Question</th>
+            <th>Old Marks</th>
+            <th>New Marks</th>
+            <th>Change</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    for(const qid in revalReq.old_eval_json){
+      const oldQ  = revalReq.old_eval_json[qid];
+      const oldM  = oldQ.final_marks || 0;
+      const newM  = result.question_wise?.[qid]?.final_marks ?? "—";
+      const qDiff = typeof newM === "number" ? parseFloat((newM - oldM).toFixed(2)) : null;
+
+      const changeHTML = qDiff === null
+        ? `<span class="q-same">—</span>`
+        : qDiff > 0
+        ? `<span class="q-up">+${qDiff}</span>`
+        : qDiff < 0
+        ? `<span class="q-down">${qDiff}</span>`
+        : `<span class="q-same">0</span>`;
+
+      qTableHTML += `
+        <tr>
+          <td><strong>${qid}</strong></td>
+          <td style="color:#dc2626;">${oldM}</td>
+          <td style="color:#16a34a;">${typeof newM === "number" ? newM : "—"}</td>
+          <td>${changeHTML}</td>
+        </tr>
+      `;
+    }
+
+    qTableHTML += `</tbody></table>`;
+  }
+
+  return `
+    <div class="reval-box">
+      <div class="reval-title">🔄 Revaluation Complete — Marks Comparison</div>
+
+      <div class="comp-grid">
+        <div class="comp-box">
+          <div class="comp-label">Before Revaluation</div>
+          <div class="comp-value comp-old">${oldMarks} / ${result.max_marks}</div>
+          <div class="comp-grade">Grade: ${revalReq.old_grade || "—"}</div>
+        </div>
+        <div class="comp-box">
+          <div class="comp-label">After Revaluation</div>
+          <div class="comp-value comp-new">${newMarks} / ${result.max_marks}</div>
+          <div class="comp-grade">Grade: ${result.grade}</div>
+        </div>
+      </div>
+
+      <div class="diff-wrap">
+        <span class="diff-pill ${diffClass}">${diffText}</span>
+      </div>
+
+      ${qTableHTML}
+    </div>
+  `;
+}
+
+function openModal(submissionId, type, examTitle){
+  currentSubmissionId = submissionId;
+  currentRequestType  = type;
+  document.getElementById("modalIcon").textContent  = type === "photocopy" ? "📄" : "🔄";
+  document.getElementById("modalTitle").textContent =
+    type === "photocopy" ? "Apply for Photocopy" : "Apply for Revaluation";
+  document.getElementById("modalDesc").textContent  =
+    type === "photocopy"
+      ? `Request a watermarked photocopy of your answer sheet for "${examTitle}".`
+      : `Request AI re-evaluation of your answer sheet for "${examTitle}". Marks will update if approved.`;
+  document.getElementById("applyReason").value        = "";
+  document.getElementById("successMsg").style.display = "none";
+  document.getElementById("submitBtn").disabled        = false;
+  document.getElementById("submitBtn").textContent     = "Submit Request";
+  document.getElementById("applyModal").classList.add("active");
+}
+
+function closeModal(){
+  document.getElementById("applyModal").classList.remove("active");
+}
+
+async function submitRequest(){
+  const reason     = document.getElementById("applyReason").value.trim();
+  const submitBtn  = document.getElementById("submitBtn");
+  const successMsg = document.getElementById("successMsg");
+
+  submitBtn.disabled    = true;
+  submitBtn.textContent = "Submitting...";
+
+  try{
+    const res = await fetch(
+      `${BASE_URL}/student/apply/${currentSubmissionId}?request_type=${currentRequestType}&reason=${encodeURIComponent(reason)}`,
+      {method: "POST", headers: {"Authorization": `Bearer ${token}`}}
+    );
+    if(!res.ok){
+      const err = await res.json();
+      throw new Error(err.detail || "Request failed");
+    }
+    successMsg.textContent   = `✅ ${currentRequestType.charAt(0).toUpperCase() + currentRequestType.slice(1)} request submitted!`;
+    successMsg.style.display = "block";
+    setTimeout(() => { closeModal(); loadDashboard(); }, 1800);
+  } catch(err){
+    submitBtn.disabled    = false;
+    submitBtn.textContent = "Submit Request";
+    alert(err.message);
+  }
+}
+
+async function downloadPhotocopy(submissionId){
+  try{
+    const res = await fetch(
+      `${BASE_URL}/student/photocopy/${submissionId}`,
+      {headers: {"Authorization": `Bearer ${token}`}}
+    );
+    if(!res.ok){
+      const err = await res.json();
+      throw new Error(err.detail || "Download failed");
+    }
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href     = url;
+    a.download = `GRADY_Photocopy_${roll}_${submissionId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch(err){
+    alert(err.message);
+  }
+}
+
+function logout(){
+  ["student_token","student_roll","student_division","student_class"]
+    .forEach(k => localStorage.removeItem(k));
+  window.location.href = "student-login.html";
+}
+
+document.getElementById("applyModal").addEventListener("click", function(e){
+  if(e.target === this) closeModal();
+});
+</script>
+</body>
+</html>

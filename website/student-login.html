@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRADY — Student Portal Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+
+body{
+background:#f9f6f2;
+color:#3e2f2b;
+min-height:100vh;
+}
+
+header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 8%;
+background:white;
+box-shadow:0 4px 20px rgba(0,0,0,0.05);
+}
+
+.logo{font-weight:700;font-size:20px;color:#3e2f2b;}
+.back{color:#5a3e36;text-decoration:none;font-weight:600;font-size:14px;}
+
+.hero{
+background:linear-gradient(135deg,#5a3e36,#8b6a5d);
+padding:80px 8%;
+text-align:center;
+color:white;
+}
+
+.hero h1{font-size:38px;font-weight:700;margin-bottom:12px;}
+.hero p{font-size:16px;opacity:0.9;max-width:500px;margin:auto;}
+
+.container{
+padding:60px 8%;
+display:flex;
+justify-content:center;
+}
+
+.form-box{
+background:white;
+padding:45px;
+border-radius:25px;
+box-shadow:0 25px 60px rgba(0,0,0,0.1);
+width:100%;
+max-width:480px;
+}
+
+.form-box h3{
+font-size:22px;
+font-weight:700;
+color:#3e2f2b;
+margin-bottom:8px;
+}
+
+.form-box p{
+font-size:13px;
+color:#888;
+margin-bottom:30px;
+}
+
+.input-group{
+margin-bottom:18px;
+}
+
+.input-group label{
+display:block;
+font-size:13px;
+font-weight:600;
+color:#5a3e36;
+margin-bottom:6px;
+}
+
+.input-group input{
+width:100%;
+padding:14px;
+border-radius:12px;
+border:1.5px solid #e8e0da;
+font-size:14px;
+font-family:'Poppins',sans-serif;
+transition:0.3s;
+outline:none;
+}
+
+.input-group input:focus{
+border-color:#5a3e36;
+box-shadow:0 0 0 3px rgba(90,62,54,0.1);
+}
+
+.row{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:30px;
+background:linear-gradient(135deg,#5a3e36,#8b6a5d);
+color:white;
+font-weight:600;
+font-size:15px;
+cursor:pointer;
+transition:0.3s;
+margin-top:8px;
+}
+
+button:hover{
+transform:translateY(-3px);
+box-shadow:0 15px 35px rgba(90,62,54,0.3);
+}
+
+.error{
+color:#dc2626;
+background:#fee2e2;
+border-radius:10px;
+padding:10px 14px;
+font-size:13px;
+margin-top:15px;
+display:none;
+}
+
+.info-box{
+background:#f4efe9;
+border-radius:14px;
+padding:20px;
+margin-top:25px;
+font-size:13px;
+color:#5a3e36;
+line-height:1.8;
+}
+
+.loader{
+display:none;
+width:24px;
+height:24px;
+border:3px solid #eee;
+border-top:3px solid #5a3e36;
+border-radius:50%;
+animation:spin 1s linear infinite;
+margin:15px auto 0;
+}
+
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">GRADY</div>
+  <a href="index.html" class="back">← Back to Home</a>
+</header>
+
+<div class="hero">
+  <h1>Student Portal</h1>
+  <p>Login to view your results and apply for photocopy or revaluation requests.</p>
+</div>
+
+<div class="container">
+  <div class="form-box">
+    <h3>Student Login</h3>
+    <p>Use your roll number as both username and default password.</p>
+
+    <div class="input-group">
+      <label>Roll Number</label>
+      <input type="text" id="rollNumber" placeholder="e.g. 101, A001">
+    </div>
+
+    <div class="row">
+      <div class="input-group">
+        <label>Class</label>
+        <input type="text" id="className" placeholder="e.g. TY, SY">
+      </div>
+      <div class="input-group">
+        <label>Division</label>
+        <input type="text" id="division" placeholder="e.g. A, B">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Default: your Roll Number">
+    </div>
+
+    <button onclick="login()">Login to Portal</button>
+    <div class="loader" id="loader"></div>
+    <div class="error" id="error"></div>
+
+    <div class="info-box">
+      🔐 <strong>Default Password</strong> is your Roll Number.<br>
+      📋 Your account is automatically created when faculty evaluates your paper.<br>
+      ❓ Contact your faculty if you cannot login.
+    </div>
+  </div>
+</div>
+
+<script>
+const BASE_URL = "http://127.0.0.1:8000";
+
+async function login(){
+  const roll      = document.getElementById("rollNumber").value.trim();
+  const className = document.getElementById("className").value.trim();
+  const division  = document.getElementById("division").value.trim();
+  const password  = document.getElementById("password").value.trim();
+  const error     = document.getElementById("error");
+  const loader    = document.getElementById("loader");
+
+  error.style.display  = "none";
+
+  if(!roll || !className || !division || !password){
+    error.textContent   = "Please fill all fields.";
+    error.style.display = "block";
+    return;
+  }
+
+  loader.style.display = "block";
+
+  try{
+    const res = await fetch(`${BASE_URL}/student/login`, {
+      method:  "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        roll_number: roll,
+        class_name:  className,
+        division:    division,
+        password:    password
+      })
+    });
+
+    if(!res.ok){
+      const err = await res.json();
+      throw new Error(err.detail || "Login failed");
+    }
+
+    const data = await res.json();
+
+    localStorage.setItem("student_token",    data.access_token);
+    localStorage.setItem("student_roll",     data.roll_number);
+    localStorage.setItem("student_division", data.division);
+    localStorage.setItem("student_class",    data.class_name);
+
+    window.location.href = "student-portal.html";
+
+  } catch(err){
+    loader.style.display = "none";
+    error.textContent    = err.message;
+    error.style.display  = "block";
+  }
+}
+
+document.addEventListener("keypress", e => {
+  if(e.key === "Enter") login();
+});
+
+if(localStorage.getItem("student_token")){
+  window.location.href = "student-portal.html";
+}
+</script>
+</body>
+</html>
